@@ -1,10 +1,10 @@
 import pytest
-from app.models.user import User
-from app.services.auth_service import verify_password, hash_password, generate_salt
+from models.user import User
+from services.auth_service import verify_password, hash_password, generate_salt
 
+# Тест хеширования паролей
 @pytest.mark.asyncio
 async def test_password_hashing():
-    """Тест хеширования паролей"""
     password = "TestPassword123"
     salt = generate_salt()
     hashed = hash_password(password, salt)
@@ -15,9 +15,9 @@ async def test_password_hashing():
     # Проверяем что неправильный пароль не проходит
     assert not verify_password("WrongPassword", hashed, salt)
 
+# Тест создания пользователя
 @pytest.mark.asyncio
 async def test_user_creation():
-    """Тест создания пользователя"""
     user = User(
         email="test@example.com",
         username="testuser",

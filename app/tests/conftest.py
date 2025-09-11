@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.main import app
-from app.core.database import Base, get_db
-from app.core.config import settings
+from main import app
+from core.database import Base, get_db
+from core.config import settings
 
 # Тестовая база данных
 TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
