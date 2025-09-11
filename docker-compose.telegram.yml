@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  alertmanager-telegram:
+    image: inch/alertmanager-telegram:latest
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - TEMPLATE_PATHS=/etc/alertmanager-telegram/template.tmpl
+    ports:
+      - "9087:9087"
+    volumes:
+      - ./deployments/monitoring/templates/telegram.tmpl:/etc/alertmanager-telegram/template.tmpl
+    restart: unless-stopped

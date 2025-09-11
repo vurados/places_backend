@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./deployments/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    restart: unless-stopped
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./deployments/monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml
+    restart: unless-stopped
+
+volumes:
+  alertmanager_data:

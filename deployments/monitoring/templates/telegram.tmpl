@@ -1,0 +1,14 @@
+{{ define "telegram.message" }}
+{{ if eq .Status "firing" }}🔥{{ else }}✅{{ end }} *[{{ .Status | toUpper }}]* {{ .CommonLabels.alertname }}
+
+{{ .CommonAnnotations.summary }}
+
+{{ range .Alerts }}
+• *Description:* {{ .Annotations.description }}
+• *Instance:* {{ .Labels.instance }}
+• *Value:* {{ .Annotations.value }}
+• *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+{{ end }}
+
+[Open Alertmanager](http://your-domain.com:9093)
+{{ end }}
