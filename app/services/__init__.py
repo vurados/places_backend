@@ -1,12 +1,11 @@
 from app.services.auth_service import (
     verify_password,
-    get_password_hash,
+    hash_password,
     generate_salt,
     authenticate_user,
     authenticate_user_by_username,
     create_access_token,
-    get_current_user,
-    get_current_active_user
+    get_current_user
 )
 from app.services.email_service import (
     send_verification_email,
@@ -29,13 +28,12 @@ from app.services.search_service import (
 __all__ = [
     # Auth
     "verify_password",
-    "get_password_hash",
+    "hash_password",
     "generate_salt",
     "authenticate_user",
     "authenticate_user_by_username",
     "create_access_token",
     "get_current_user",
-    "get_current_active_user",
     
     # Email
     "send_verification_email",
