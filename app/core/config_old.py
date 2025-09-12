@@ -1,9 +1,7 @@
 import os
-from typing import List, Optional
-from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from urllib.parse import quote_plus
-
+from typing import List
+from pydantic import AnyHttpUrl, PostgresDsn, field_validator
+from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # Project
     PROJECT_NAME: str = "Urban Places Social App"
@@ -11,6 +9,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     
     # Security
+    # TODO: change in production
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change_this_in_production")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
@@ -29,11 +28,31 @@ class Settings(BaseSettings):
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: str = os.getenv("DB_PORT", "5432")
     DB_USER: str = os.getenv("DB_USER", "postgres")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "123456789")
+    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "")
     DB_NAME: str = os.getenv("DB_NAME", "places_social")
+    DATABASE_URI: PostgresDsn = None
     
-    # Убираем DATABASE_URI из полей, будем вычислять его динамически
-    # через property чтобы избежать проблем с валидацией
+    @field_validator("DATABASE_URI", mode='after')
+    @classmethod
+    def assemble_db_connection(cls, v, values):
+        if v:
+            return v
+            
+        # Получаем значения из других полей
+        user = values.get("DB_USER")
+        password = values.get("DB_PASSWORD")
+        host = values.get("DB_HOST")
+        port = values.get("DB_PORT")
+        db_name = values.get("DB_NAME")
+        
+        if not all([user, password, host, port, db_name]):
+            raise ValueError("Missing database connection details")
+        
+        if password:
+            return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db_name}"
+        else:
+            return f"postgresql+asyncpg://{user}@{host}:{port}/{db_name}"
+        
     
     # Redis
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
@@ -53,22 +72,9 @@ class Settings(BaseSettings):
     SMTP_USER: str = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     
-    # Динамическое свойство для DATABASE_URI
-    @property
-    def DATABASE_URI(self) -> str:
-        """Динамически генерируем DATABASE_URI"""
-        user_escaped = quote_plus(self.DB_USER)
-        password_escaped = quote_plus(self.DB_PASSWORD) if self.DB_PASSWORD else ""
-        
-        if password_escaped:
-            return f"postgresql+asyncpg://{user_escaped}:{password_escaped}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        else:
-            return f"postgresql+asyncpg://{user_escaped}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-    
-    model_config = SettingsConfigDict(
-        case_sensitive=True,
-        env_file=".env",
-        extra="ignore"  # Игнорируем дополнительные поля
-    )
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
+        # validate_default=False
 
 settings = Settings()

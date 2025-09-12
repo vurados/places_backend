@@ -1,6 +1,6 @@
 import pytest
-from models.user import User
-from services.auth_service import verify_password, hash_password, generate_salt
+from app.models.user import User
+from app.services.auth_service import verify_password, hash_password, generate_salt
 
 # Тест хеширования паролей
 @pytest.mark.asyncio
@@ -27,5 +27,6 @@ async def test_user_creation():
     
     assert user.email == "test@example.com"
     assert user.username == "testuser"
-    assert not user.is_verified
-    assert user.is_active
+    assert user.is_verified is False
+    assert user.is_active is True
+    assert user.is_superuser is False

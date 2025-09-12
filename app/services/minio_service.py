@@ -2,9 +2,14 @@ from minio import Minio
 from minio.error import S3Error
 import uuid
 from app.core.config import settings
+import os
 
 class MinioClient:
     def __init__(self):
+        if os.environ.get("TESTING") == "True":
+            self.client = None
+            return
+
         self.client = Minio(
             settings.MINIO_ENDPOINT,
             access_key=settings.MINIO_ROOT_USER,
@@ -17,6 +22,9 @@ class MinioClient:
         self._create_bucket()
     
     def _create_bucket(self):
+        if self.client is None:
+            return
+        
         try:
             if not self.client.bucket_exists(self.bucket_name):
                 self.client.make_bucket(self.bucket_name)
@@ -25,6 +33,11 @@ class MinioClient:
             print(f"Error creating bucket: {err}")
     
     async def upload_image(self, file_data, file_name, content_type):
+        if self.client is None:
+            # В тестовом режиме возвращаем заглушку
+            unique_filename = f"test_{uuid.uuid4()}.{file_name.split('.')[-1]}"
+            return unique_filename, f"http://test-minio/{unique_filename}"
+        
         try:
             # Generate unique filename
             file_extension = file_name.split('.')[-1]

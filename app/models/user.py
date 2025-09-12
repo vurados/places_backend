@@ -15,8 +15,8 @@ class User(Base):
     password_salt = Column(String(255), nullable=True)      # Соль для пароля
     
     # OAuth провайдеры
-    oauth_providers = Column(JSONB, default=[])  # Список подключенных OAuth провайдеров
-    oauth_data = Column(JSONB, default={})       # Данные OAuth (id, tokens, etc.)
+    oauth_providers = Column(JSONB, default=lambda: [])  # Список подключенных OAuth провайдеров
+    oauth_data = Column(JSONB, default=lambda: {})       # Данные OAuth (id, tokens, etc.)
     
     # Основная информация
     first_name = Column(String(50), nullable=True)
@@ -25,9 +25,9 @@ class User(Base):
     avatar_url = Column(String(500), nullable=True)
     
     # Статусы
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    is_superuser = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True, nullable=False, server_default="true")
+    is_verified = Column(Boolean, default=False, nullable=False, server_default="false")  # Email/Phone верификация
+    is_superuser = Column(Boolean, default=False, nullable=False, server_default="false")
     
     # Временные метки
     created_at = Column(DateTime, server_default=func.now())
@@ -38,6 +38,16 @@ class User(Base):
     data_processing_consent = Column(Boolean, default=False)
     privacy_policy_accepted = Column(Boolean, default=False)
     marketing_consent = Column(Boolean, default=False)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Убедимся, что Boolean поля имеют значения по умолчанию
+        if self.is_active is None:
+            self.is_active = True
+        if self.is_verified is None:
+            self.is_verified = False
+        if self.is_superuser is None:
+            self.is_superuser = False
     
     def __repr__(self):
         return f"<User {self.email or self.username}>"

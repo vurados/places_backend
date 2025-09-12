@@ -11,7 +11,7 @@ class Route(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text)
     places_order = Column(ARRAY(UUID))  # ordered list of place IDs
-    metadata = Column(JSONB)  # distance, estimated time, etc.
+    metadata_info = Column(JSONB)  # distance, estimated time, etc.
     
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     is_public = Column(Boolean, default=True)

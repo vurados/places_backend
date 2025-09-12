@@ -1,12 +1,31 @@
+import os
+import sys
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from main import app
-from core.database import Base, get_db
-from core.config import settings
+# Устанавливаем флаг тестирования
+os.environ["TESTING"] = "True"
+
+# Устанавливаем переменные окружения
+os.environ.update({
+    "DB_HOST": "localhost",
+    "DB_PORT": "5432",
+    "DB_USER": "test_user",
+    "DB_PASSWORD": "test_password",
+    "DB_NAME": "test_db",
+    "REDIS_HOST": "localhost",
+    "REDIS_PORT": "6379",
+    "SECRET_KEY": "test_secret_key_for_tests"
+})
+
+# Добавляем корневую директорию в PYTHONPATH
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.main import app
+from app.core.database import Base, get_db
 
 # Тестовая база данных
 TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
@@ -22,34 +41,37 @@ AsyncTestingSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
-async def override_get_db():
-    async with AsyncTestingSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
-
-@pytest.fixture(scope="session")
-async def test_db():
-    # Создаем тестовые таблицы
+@pytest.fixture(scope="session", autouse=True)
+async def create_test_tables():
+    """Создаем таблицы один раз для всех тестов"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
     yield
-    
-    # Удаляем тестовые таблицы
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 @pytest.fixture
-async def db_session(test_db):
+async def db_session():
+    """Создаем новую сессию для каждого теста"""
     async with AsyncTestingSessionLocal() as session:
-        yield session
-        await session.rollback()
+        try:
+            yield session
+        finally:
+            await session.rollback()
 
 @pytest.fixture
 def client(db_session):
+    """Создаем test client с переопределенной зависимостью БД"""
     app.dependency_overrides[get_db] = lambda: db_session
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+# Фикстура event_loop для asyncio
+@pytest.fixture(scope="session")
+def event_loop():
+    """Создаем event loop для сессии"""
+    import asyncio
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()

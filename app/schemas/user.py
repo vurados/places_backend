@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, EmailStr, field_validator, Field
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
@@ -14,13 +14,13 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=100)
     confirm_password: str
     
-    @validator('confirm_password')
+    @field_validator('confirm_password')
     def passwords_match(cls, v, values):
         if 'password' in values and v != values['password']:
             raise ValueError('passwords do not match')
         return v
     
-    @validator('password')
+    @field_validator('password')
     def password_strength(cls, v):
         if len(v) < 8:
             raise ValueError('password must be at least 8 characters long')
@@ -49,7 +49,7 @@ class UserResponse(UserBase):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 class UserLogin(BaseModel):
     login: str  # Может быть email или username

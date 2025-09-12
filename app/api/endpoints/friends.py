@@ -6,6 +6,7 @@ from uuid import UUID
 from app.core.database import get_db
 from app.models.user import User
 from app.models.friend import FriendRequest, FriendStatus
+from app.schemas.user import UserResponse
 from app.schemas.friend import FriendRequestCreate, FriendRequestResponse, FriendRequestUpdate
 from app.services.auth_service import get_current_user
 
@@ -111,7 +112,7 @@ async def update_friend_request(
 
     return friend_request
 
-@router.get("/friends", response_model=List[User])
+@router.get("/friends", response_model=List[UserResponse])
 async def get_friends(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)

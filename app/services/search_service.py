@@ -1,4 +1,10 @@
+from sqlalchemy.ext.asyncio import AsyncSession  # Добавляем импорт
+from sqlalchemy import select, func, or_
+from typing import List, Optional
+from uuid import UUID
 from app.services.redis_service import redis_client
+
+from app.models import User, Place
 
 async def search_users(
     db: AsyncSession,

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey, func, Boolean, Text, Enum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import uuid
 from app.core.database import Base
@@ -24,7 +24,7 @@ class Notification(Base):
     is_read = Column(Boolean, default=False)
     related_entity_type = Column(String(50))  # user, place, review, message, etc.
     related_entity_id = Column(UUID(as_uuid=True))
-    metadata = Column(JSONB)  # additional data
+    metadata_info = Column(JSONB)  # additional data
     
     created_at = Column(DateTime, server_default=func.now())
     

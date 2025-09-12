@@ -23,7 +23,9 @@ app.add_middleware(
 )
 
 # Metrics middleware
-app.add_middleware('http')(metrics_middleware)
+@app.middleware("http")
+async def metrics_middleware_wrapper(request, call_next):
+    return await metrics_middleware(request, call_next)
 app.add_route("/metrics", metrics_endpoint)
 
 # Include API routes

@@ -1,8 +1,8 @@
 import pytest
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
-from services.auth_service import hash_password, generate_salt
+from app.models.user import User
+from app.services.auth_service import hash_password, generate_salt
 
 @pytest.mark.asyncio
 async def test_register_user(client, db_session: AsyncSession):

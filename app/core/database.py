@@ -1,13 +1,22 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
 from app.core.config import settings
 
+# Определяем Base
+Base = declarative_base()
+
+# Используем property для получения DATABASE_URI
+database_url = settings.DATABASE_URI
+
+if not database_url:
+    raise ValueError("DATABASE_URI is not set in the configuration.")
+
 engine = create_async_engine(
-    settings.DATABASE_URI,
+    database_url,
     echo=False,
     future=True,
-    poolclass=NullPool,  # Для асинхронности
+    poolclass=NullPool,
 )
 
 AsyncSessionLocal = sessionmaker(
@@ -20,3 +29,5 @@ async def get_db():
             yield session
         finally:
             await session.close()
+
+__all__ = ["Base", "engine", "AsyncSessionLocal", "get_db"]
