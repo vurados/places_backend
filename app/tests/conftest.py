@@ -11,7 +11,7 @@ os.environ["TESTING"] = "True"
 
 # Устанавливаем переменные окружения
 os.environ.update({
-    "DB_HOST": "localhost",
+    "DB_HOST": "postgres",
     "DB_PORT": "5432",
     "DB_USER": "test_user",
     "DB_PASSWORD": "test_password",
@@ -28,7 +28,7 @@ from app.main import app
 from app.core.database import Base, get_db
 
 # Тестовая база данных
-TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
+TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@postgres:5432/test_db"
 
 engine = create_async_engine(
     TEST_DATABASE_URL,
@@ -50,14 +50,16 @@ async def create_test_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def db_session():
-    """Создаем новую сессию для каждого теста"""
+    """Создаем сесию для каждого теста"""
     async with AsyncTestingSessionLocal() as session:
         try:
             yield session
         finally:
-            await session.rollback()
+            # Just close the session without committing
+            await session.close()
+
 
 @pytest.fixture
 def client(db_session):

@@ -57,7 +57,7 @@ jobs:
 
       - name: Run tests
         env:
-          DB_HOST: localhost
+          DB_HOST: postgres
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
           DB_USER: test_user
           DB_PASSWORD: test_password

@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
+from datetime import datetime, timedelta, timezone
 import uuid
 
 from app.core.database import get_db
@@ -92,7 +93,7 @@ async def login(
         )
     
     # Обновляем время последнего входа
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now(timezone.utc)
     await db.commit()
     
     # Создаем токены

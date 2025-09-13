@@ -15,7 +15,7 @@ from app.core.database import Base, get_db
 from app.core.config import settings
 
 # Тестовая база данных
-TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
+TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@postgres:5432/test_db"
 
 engine = create_async_engine(
     TEST_DATABASE_URL,
