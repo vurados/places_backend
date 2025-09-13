@@ -66,6 +66,7 @@ jobs:
         #   REDIS_PORT: ${{ job.services.redis.ports[6379] }}
         #   SECRET_KEY: test_secret_key
         run: |
+          ip a
           pytest -v --tb=short
 
   security-scan:
