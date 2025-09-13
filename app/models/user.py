@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, func, Text
+from sqlalchemy import JSON, Column, String, Boolean, DateTime, func, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 import uuid
 from app.core.database import Base
@@ -15,8 +15,8 @@ class User(Base):
     password_salt = Column(String(255), nullable=True)      # Соль для пароля
     
     # OAuth провайдеры
-    oauth_providers = Column(JSONB, default=lambda: [])  # Список подключенных OAuth провайдеров
-    oauth_data = Column(JSONB, default=lambda: {})       # Данные OAuth (id, tokens, etc.)
+    oauth_providers = Column(JSONB().with_variant(JSON, 'sqlite'), default=lambda: [])  # Список подключенных OAuth провайдеров
+    oauth_data = Column(JSONB().with_variant(JSON, 'sqlite'), default=lambda: {})       # Данные OAuth (id, tokens, etc.)
     
     # Основная информация
     first_name = Column(String(50), nullable=True)

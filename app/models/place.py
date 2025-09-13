@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey, func, ARRAY, Float
+from sqlalchemy import JSON, Column, String, Text, Boolean, DateTime, ForeignKey, func, ARRAY, Float
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import uuid
@@ -15,7 +15,7 @@ class Place(Base):
     longitude = Column(Float, nullable=False)
     type = Column(String(100))  # restaurant, park, museum, etc.
     tags = Column(ARRAY(String(100)))
-    metadata_info = Column(JSONB)  # additional flexible data
+    metadata_info = Column(JSONB().with_variant(JSON, 'sqlite'))  # additional flexible data
     
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     is_public = Column(Boolean, default=True)
