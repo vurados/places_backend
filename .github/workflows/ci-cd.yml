@@ -39,7 +39,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip dependencies
         uses: actions/cache@v3
@@ -57,7 +57,7 @@ jobs:
 
       - name: Run tests
         env:
-          DB_HOST: postgres
+          DB_HOST: localhost
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
           DB_USER: test_user
           DB_PASSWORD: test_password
@@ -76,7 +76,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip dependencies
         uses: actions/cache@v3
