@@ -11,7 +11,7 @@ os.environ["TESTING"] = "True"
 
 # Устанавливаем переменные окружения
 os.environ.update({
-    "DB_HOST": "postgres",
+    "DB_HOST": "localhost",
     "DB_PORT": "5432",
     "DB_USER": "test_user",
     "DB_PASSWORD": "test_password",
@@ -28,7 +28,7 @@ from app.main import app
 from app.core.database import Base, get_db
 
 # Тестовая база данных
-TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@postgres:5432/test_db"
+TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
 
 engine = create_async_engine(
     TEST_DATABASE_URL,
