@@ -22,7 +22,7 @@ class NotificationResponse(NotificationBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attribute = True
 
 class NotificationUpdate(BaseModel):
     is_read: bool

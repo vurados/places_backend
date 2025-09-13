@@ -4,11 +4,14 @@ from typing import List
 from uuid import UUID
 
 from app.core.database import get_db
+from app.models.notification import NotificationType
 from app.models.user import User
 from app.models.friend import FriendRequest, FriendStatus
+from app.schemas.notification import NotificationCreate
 from app.schemas.user import UserResponse
 from app.schemas.friend import FriendRequestCreate, FriendRequestResponse, FriendRequestUpdate
 from app.services.auth_service import get_current_user
+from app.services.notification_service import create_notification
 
 router = APIRouter()
 

@@ -19,4 +19,4 @@ class MessageResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attribute = True

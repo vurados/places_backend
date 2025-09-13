@@ -2,6 +2,7 @@ import logging
 import json
 import os
 import sys
+from pathlib import Path
 from pythonjsonlogger import jsonlogger
 from logging.handlers import RotatingFileHandler
 
@@ -18,6 +19,9 @@ def setup_logging():
     formatter = jsonlogger.JsonFormatter(
         '%(asctime)s %(levelname)s %(name)s %(message)s'
     )
+
+    log_dir = Path("/var/log/places-social")
+    log_dir.mkdir(parents=True, exist_ok=True)
     
     # File handler с ротацией
     file_handler = RotatingFileHandler(
