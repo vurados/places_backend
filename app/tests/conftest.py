@@ -79,10 +79,10 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 # Фикстура event_loop для asyncio
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+    """Create an instance of the default event loop for each test function."""
+    loop = asyncio.new_event_loop()
     yield loop
     try:
         loop.run_until_complete(loop.shutdown_asyncgens())
