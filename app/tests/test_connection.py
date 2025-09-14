@@ -10,7 +10,7 @@ async def test_connection():
             user='test_user',
             password='test_password',
             database='test_db',
-            host='postgres',  # or 'postgres' if inside docker network
+            host='localhost',  # or 'postgres' if inside docker network
             port=5432
         )
         print("✅ Successfully connected to PostgreSQL!")
