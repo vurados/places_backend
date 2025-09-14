@@ -37,34 +37,41 @@ from app.core.database import Base, get_db
 # Тестовая база данных
 TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
 
-engine = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-    future=True,
-    poolclass=NullPool,
-)
+@pytest.fixture(scope="function")
+async def async_engine():
+    """Создаем новый асинхронный движок для каждой тестовой функции."""
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        future=True,
+        poolclass=NullPool,
+    )
+    yield engine
+    await engine.dispose()
 
-AsyncTestingSessionLocal = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
+@pytest.fixture(scope="function")
+def async_session_maker(async_engine):
+    """Создаем новый sessionmaker для каждой тестовой функции."""
+    return sessionmaker(
+        async_engine, class_=AsyncSession, expire_on_commit=False
+    )
 
 @pytest.fixture(scope="function", autouse=True)
-async def create_test_tables():
-    """Создаем таблицы один раз для всех тестов"""
-    async with engine.begin() as conn:
+async def create_test_tables(async_engine):
+    """Создаем и удаляем таблицы для каждой тестовой функции."""
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    async with engine.begin() as conn:
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 @pytest.fixture(scope="function")
-async def db_session():
-    """Создаем сесию для каждого теста"""
-    async with AsyncTestingSessionLocal() as session:
+async def db_session(async_session_maker):
+    """Создаем сессию для каждого теста."""
+    async with async_session_maker() as session:
         try:
             yield session
         finally:
-            # Just close the session without committing
             await session.close()
 
 
