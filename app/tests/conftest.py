@@ -7,6 +7,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
+import logging
+
+# Reduce SQLAlchemy logging during tests
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
+
 # Устанавливаем флаг тестирования
 os.environ["TESTING"] = "True"
 
@@ -65,7 +71,9 @@ async def db_session():
 @pytest.fixture
 def client(db_session):
     """Создаем test client с переопределенной зависимостью БД"""
-    app.dependency_overrides[get_db] = lambda: db_session
+    async def override_get_db():
+        yield db_session
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
@@ -76,4 +84,7 @@ def event_loop():
     """Create an instance of the default event loop for the test session."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
-    loop.close()
+    try:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+    finally:
+        loop.close()
