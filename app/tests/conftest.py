@@ -16,7 +16,7 @@ os.environ.update({
     "DB_USER": "test_user",
     "DB_PASSWORD": "test_password",
     "DB_NAME": "test_db",
-    "REDIS_HOST": "localhost",
+    "REDIS_HOST": "redis",
     "REDIS_PORT": "6379",
     "SECRET_KEY": "test_secret_key_for_tests"
 })
@@ -27,8 +27,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.main import app
 from app.core.database import Base, get_db
 
-# Тестовая база данных - используем SQLite для тестов чтобы избежать проблем с PostgreSQL
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+# Тестовая база данных
+TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
 
 engine = create_async_engine(
     TEST_DATABASE_URL,
@@ -47,22 +47,19 @@ async def create_test_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    # Очищаем базу данных после тестов
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    # Удаляем файл базы данных
-    import os
-    if os.path.exists("test.db"):
-        os.remove("test.db")
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def db_session():
-    """Создаем новую сессию для каждого теста"""
+    """Создаем сесию для каждого теста"""
     async with AsyncTestingSessionLocal() as session:
         try:
             yield session
         finally:
-            await session.rollback()
+            # Just close the session without committing
+            await session.close()
+
 
 @pytest.fixture
 def client(db_session):
