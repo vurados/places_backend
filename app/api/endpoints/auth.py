@@ -124,7 +124,7 @@ async def oauth_login(
     
     if user:
         # Обновляем данные пользователя
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now(timezone.utc)
         await db.commit()
     else:
         # Создаем нового пользователя через OAuth

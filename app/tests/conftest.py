@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 import pytest
@@ -72,8 +73,7 @@ def client(db_session):
 # Фикстура event_loop для asyncio
 @pytest.fixture(scope="session")
 def event_loop():
-    """Создаем event loop для сессии"""
-    import asyncio
-    loop = asyncio.new_event_loop()
+    """Create an instance of the default event loop for the test session."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
