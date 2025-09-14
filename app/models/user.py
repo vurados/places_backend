@@ -32,7 +32,7 @@ class User(Base):
     # Временные метки
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    last_login = Column(DateTime, nullable=True)
+    last_login = Column(DateTime(timezone=True), nullable=True)
     
     # GDPR compliance
     data_processing_consent = Column(Boolean, default=False)
