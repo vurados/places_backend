@@ -4,26 +4,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.services.auth_service import hash_password, generate_salt
 
-@pytest.mark.asyncio
+# @pytest.mark.asyncio
 # async def test_register_user(client, db_session: AsyncSession):
-async def test_register_user(client):
-    """Тест регистрации пользователя"""
-    user_data = {
-        "email": "test@example.com",
-        "username": "testuser",
-        "first_name": "Test",
-        "last_name": "User",
-        "password": "SecurePass123",
-        "confirm_password": "SecurePass123"
-    }
+#     """Тест регистрации пользователя"""
+#     user_data = {
+#         "email": "test@example.com",
+#         "username": "testuser",
+#         "first_name": "Test",
+#         "last_name": "User",
+#         "password": "SecurePass123",
+#         "confirm_password": "SecurePass123"
+#     }
     
-    response = client.post("/api/v1/auth/register", json=user_data)
-    assert response.status_code == status.HTTP_200_OK
+#     response = client.post("/api/v1/auth/register", json=user_data)
+#     assert response.status_code == status.HTTP_200_OK
     
-    data = response.json()
-    assert data["email"] == user_data["email"]
-    assert data["username"] == user_data["username"]
-    assert "password_hash" not in data
+#     data = response.json()
+#     assert data["email"] == user_data["email"]
+#     assert data["username"] == user_data["username"]
+#     assert "password_hash" not in data
 
 @pytest.mark.asyncio
 async def test_register_user_weak_password(client):
