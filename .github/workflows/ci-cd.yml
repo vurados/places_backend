@@ -67,7 +67,7 @@ jobs:
         #   SECRET_KEY: test_secret_key
         run: |
           ip a
-          python tests/test_connection.py
+          python app/tests/test_connection.py
           pytest -v --tb=short
 
   security-scan:
