@@ -48,7 +48,7 @@ AsyncTestingSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 async def create_test_tables():
     """Создаем таблицы один раз для всех тестов"""
     async with engine.begin() as conn:
