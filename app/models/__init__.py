@@ -1,4 +1,4 @@
-from app.core.database import Base
+from core.database import Base
 from .user import User
 from .place import Place
 from .review import Review

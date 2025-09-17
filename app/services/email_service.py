@@ -26,6 +26,7 @@ async def send_password_reset_email(email: str, reset_token: str) -> bool:
     """
     Отправляет email для сброса пароля.
     """
+    # TODO: реализовать отправку email
     try:
         logger.info(f"Sending password reset email to {email} with token {reset_token}")
         return True

@@ -1,7 +1,7 @@
-from app.core.config import settings
-from app.core.database import Base, engine, AsyncSessionLocal, get_db
-from app.core.logging import setup_logging
-from app.core.monitoring import metrics_middleware, metrics_endpoint
+from .config import settings
+from .database import Base, engine, AsyncSessionLocal, get_db
+from .logging import setup_logging
+from .monitoring import metrics_middleware, metrics_endpoint
 
 __all__ = [
     "settings",

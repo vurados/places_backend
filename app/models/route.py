@@ -2,7 +2,7 @@ from sqlalchemy import JSON, Column, String, Text, Boolean, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import uuid
-from app.core.database import Base
+from core.database import Base
 
 class Route(Base):
     __tablename__ = "routes"

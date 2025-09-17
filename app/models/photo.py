@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, func, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
-from app.core.database import Base
+from core.database import Base
 
 class Photo(Base):
     __tablename__ = "photos"

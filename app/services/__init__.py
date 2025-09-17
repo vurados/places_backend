@@ -1,4 +1,4 @@
-from app.services.auth_service import (
+from .auth_service import (
     verify_password,
     hash_password,
     generate_salt,
@@ -7,19 +7,19 @@ from app.services.auth_service import (
     create_access_token,
     get_current_user
 )
-from app.services.email_service import (
+from .email_service import (
     send_verification_email,
     send_password_reset_email
 )
-from app.services.minio_service import MinioClient, minio_client
-from app.services.image_service import process_and_upload_image
-from app.services.notification_service import (
+from .minio_service import MinioClient, minio_client
+from .image_service import process_and_upload_image
+from .notification_service import (
     create_notification,
     get_user_notifications,
     mark_notification_as_read,
     mark_all_notifications_as_read
 )
-from app.services.search_service import (
+from .search_service import (
     search_users,
     search_places,
     global_search

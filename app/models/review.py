@@ -2,7 +2,7 @@ from sqlalchemy import Column, Text, Integer, DateTime, ForeignKey, func, Boolea
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
-from app.core.database import Base
+from core.database import Base
 
 class Review(Base):
     __tablename__ = "reviews"
