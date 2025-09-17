@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
 
-from app.core.database import get_db
-from app.models.user import User
-from app.models.place import Place
-from app.models.photo import Photo
-from app.schemas.place import PlaceCreate, PlaceResponse, PlaceUpdate
-from app.schemas.photo import PhotoResponse
-from app.services.auth_service import get_current_user
-from app.services.image_service import process_and_upload_image
+from core.database import get_db
+from models.user import User
+from models.place import Place
+from models.photo import Photo
+from schemas.place import PlaceCreate, PlaceResponse, PlaceUpdate
+from schemas.photo import PhotoResponse
+from services.auth_service import get_current_user
+from services.image_service import process_and_upload_image
 
 router = APIRouter()
 

@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from uuid import UUID
 
-from app.core.database import get_db
-from app.models.notification import Notification
-from app.models.user import User
-from app.schemas.notification import NotificationResponse, NotificationUpdate
-from app.services.auth_service import get_current_user
-from app.services.notification_service import (
+from core.database import get_db
+from models.notification import Notification
+from models.user import User
+from schemas.notification import NotificationResponse, NotificationUpdate
+from services.auth_service import get_current_user
+from services.notification_service import (
     get_user_notifications,
     mark_notification_as_read,
     mark_all_notifications_as_read

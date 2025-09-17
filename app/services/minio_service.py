@@ -1,7 +1,7 @@
 from minio import Minio
 from minio.error import S3Error
 import uuid
-from app.core.config import settings
+from core.config import settings
 import os
 
 class MinioClient:

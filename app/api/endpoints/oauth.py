@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from authlib.integrations.starlette_client import OAuthError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.database import get_db
-from app.core.oauth import oauth
-from app.services.auth_service import create_access_token
+from core.database import get_db
+from core.oauth import oauth
+from services.auth_service import create_access_token
 
 router = APIRouter()
 

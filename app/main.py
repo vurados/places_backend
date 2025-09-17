@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.monitoring import metrics_middleware, metrics_endpoint
-from app.core.config import settings
-from app.api import api_router
-from app.core.logging import setup_logging
+from core.monitoring import metrics_middleware, metrics_endpoint
+from core.config import settings
+from api import api_router
+from core.logging import setup_logging
 
 setup_logging()
 

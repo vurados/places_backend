@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, Any
 from uuid import UUID
 from datetime import datetime
-from app.models.notification import NotificationType
+from models.notification import NotificationType
 
 class NotificationBase(BaseModel):
     type: NotificationType

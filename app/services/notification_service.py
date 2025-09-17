@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.notification import Notification, NotificationType
-from app.schemas.notification import NotificationCreate
+from models.notification import Notification, NotificationType
+from schemas.notification import NotificationCreate
 from typing import Optional
 from uuid import UUID
 

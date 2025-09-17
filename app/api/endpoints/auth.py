@@ -6,17 +6,17 @@ from typing import Optional
 from datetime import datetime, timedelta, timezone
 import uuid
 
-from app.core.database import get_db
-from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, Token, UserLogin, UserOAuthCreate
-from app.services.auth_service import (
+from core.database import get_db
+from models.user import User
+from schemas.user import UserCreate, UserResponse, Token, UserLogin, UserOAuthCreate
+from services.auth_service import (
     authenticate_user, 
     authenticate_user_by_username,
     create_access_token,
     hash_password,
     generate_salt
 )
-from app.services.email_service import send_verification_email
+from services.email_service import send_verification_email
 
 router = APIRouter()
 

@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image
 import secrets
-from app.services.minio_service import minio_client
+from services.minio_service import minio_client
 
 async def process_and_upload_image(file, user_id: str):
     # Generate secure random filename

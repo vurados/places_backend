@@ -46,7 +46,7 @@ services:
         condition: service_healthy
     volumes:
       - ./app:/app
-    command: /bin/bash -c "cd app && alembic upgrade head && cd .. && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    command: /bin/bash -c "alembic upgrade head && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
     
 volumes:
   postgres_data:

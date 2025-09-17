@@ -1,4 +1,4 @@
-from app.schemas.user import (
+from .user import (
     UserBase,
     UserCreate,
     UserOAuthCreate,
@@ -7,16 +7,16 @@ from app.schemas.user import (
     Token,
     TokenData
 )
-from app.schemas.place import PlaceBase, PlaceCreate, PlaceUpdate, PlaceResponse
-from app.schemas.photo import PhotoBase, PhotoCreate, PhotoResponse
-from app.schemas.friend import (
+from .place import PlaceBase, PlaceCreate, PlaceUpdate, PlaceResponse
+from .photo import PhotoBase, PhotoCreate, PhotoResponse
+from .friend import (
     FriendRequestBase,
     FriendRequestCreate,
     FriendRequestResponse,
     FriendRequestUpdate
 )
-from app.schemas.message import MessageBase, MessageCreate, MessageResponse
-from app.schemas.notification import (
+from .message import MessageBase, MessageCreate, MessageResponse
+from .notification import (
     NotificationBase,
     NotificationCreate,
     NotificationResponse,

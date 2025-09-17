@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from app.models.friend import FriendStatus
+from models.friend import FriendStatus
 
 class FriendRequestBase(BaseModel):
     receiver_id: UUID

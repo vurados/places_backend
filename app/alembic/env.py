@@ -23,7 +23,7 @@ if config.config_file_name is not None:
 db_url=settings.DATABASE_URI
 if not db_url:
     raise ValueError("DATABASE_URI is not set in the configuration")
-# print(f"Using database URI: {db_url}")
+print(f"Using database URI: {db_url}")
 config.set_main_option("sqlalchemy.url", db_url)
 
 # add your model's MetaData object here
