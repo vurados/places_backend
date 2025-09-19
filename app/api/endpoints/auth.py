@@ -13,6 +13,7 @@ from services.auth_service import (
     authenticate_user, 
     authenticate_user_by_username,
     create_access_token,
+    get_current_user,
     hash_password,
     generate_salt
 )
@@ -161,3 +162,18 @@ async def oauth_login(
         "token_type": "bearer",
         "refresh_token": refresh_token
     }
+
+@router.delete("/delete-account", status_code=204)
+async def delete_account(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    # Удаляем текущего пользователя из базы данных
+    await db.delete(current_user)
+    await db.commit()
+    return

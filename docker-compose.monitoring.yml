@@ -83,7 +83,16 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+  
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./deployments/monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml
+    restart: unless-stopped
 
 volumes:
   prometheus_data:
   grafana_data:
+  alertmanager_data:

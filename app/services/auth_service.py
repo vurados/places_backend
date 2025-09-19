@@ -43,9 +43,17 @@ async def get_current_user(
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            raise credentials_exception
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"No email in payload {token}",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     except JWTError:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"JWTError {token}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     # Ищем пользователя в базе данных
 
@@ -53,7 +61,11 @@ async def get_current_user(
     user = result.scalars().first()
     
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"User was not found with email {email}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     return user
 

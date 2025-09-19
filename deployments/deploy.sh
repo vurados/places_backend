@@ -15,7 +15,7 @@ docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml pull
 docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --force-recreate
 
 # Run migrations
-docker-compose exec web alembic upgrade head
+docker-compose exec app alembic upgrade head
 
 # Clean up old images
 docker system prune -f

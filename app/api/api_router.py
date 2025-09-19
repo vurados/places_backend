@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from api.endpoints import auth, users, places, friends, messages, search
-# from app.api.endpoints import two_factor
+# from api.endpoints import two_factor
 
 api_router = APIRouter()
 
