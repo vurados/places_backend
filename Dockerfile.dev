@@ -9,8 +9,6 @@ RUN apt-get update && apt-get install -y \
     libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ../.env .env
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install dev dependencies
@@ -18,5 +16,3 @@ RUN pip install uvicorn
 
 # Copy application code
 COPY . .
-
-EXPOSE 8000
