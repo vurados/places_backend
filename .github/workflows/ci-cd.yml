@@ -90,12 +90,12 @@ jobs:
       - name: Check for vulnerabilities
         working-directory: ./app
         run: |
-          safety check
+          safety scan
 
       - name: Run bandit security scan
         working-directory: ./app
         run: |
-          bandit -r app/ -x app/tests/
+          bandit -r ./ -x ./tests/
 
   build-and-push:
     needs: [test, security-scan]
