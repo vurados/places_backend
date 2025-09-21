@@ -31,9 +31,9 @@ class Settings(BaseSettings):
     # Database
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: str = os.getenv("DB_PORT", "5432")
-    DB_USER: str = os.getenv("DB_USER", "postgresioimprovison")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "123456789")
-    DB_NAME: str = os.getenv("DB_NAME", "places_social")
+    DB_USER: str = os.getenv("DB_USER", "test_user")
+    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "test_password")
+    DB_NAME: str = os.getenv("DB_NAME", "test_db")
     
     # Убираем DATABASE_URI из полей, будем вычислять его динамически
     # через property чтобы избежать проблем с валидацией

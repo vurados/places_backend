@@ -18,6 +18,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: test_db
@@ -30,6 +31,11 @@ jobs:
           --health-retries 5
       redis:
         image: redis:7
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        ports:
+            - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -46,11 +52,13 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
+        working-directory: ./app
         run: |
           pip install -r requirements.txt
           pip install pytest pytest-asyncio
 
       - name: Run tests
+        working-directory: ./app
         # env:
         #   DB_HOST: localhost
         #   DB_PORT: ${{ job.services.postgres.ports[5432] }}
@@ -75,14 +83,17 @@ jobs:
           cache: "pip"
 
       - name: Install security tools
+        working-directory: ./app
         run: |
           pip install safety bandit
 
       - name: Check for vulnerabilities
+        working-directory: ./app
         run: |
           safety check
 
       - name: Run bandit security scan
+        working-directory: ./app
         run: |
           bandit -r app/ -x app/tests/
 
@@ -145,5 +156,5 @@ jobs:
           script: |
             cd /opt/places-social-app
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --force-recreate web
+            docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --force-recreate app
             docker system prune -f
