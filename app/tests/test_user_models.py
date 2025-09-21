@@ -1,6 +1,6 @@
 import pytest
-from app.models.user import User
-from app.services.auth_service import verify_password, hash_password, generate_salt
+from models.user import User
+from services.auth_service import verify_password, hash_password, generate_salt
 
 # Тест хеширования паролей
 @pytest.mark.asyncio

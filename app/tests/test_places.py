@@ -1,8 +1,8 @@
 import pytest
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
-from app.models.place import Place
+from models.user import User
+from models.place import Place
 
 @pytest.mark.asyncio
 async def test_create_place(client, db_session: AsyncSession):

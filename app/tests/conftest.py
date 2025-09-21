@@ -31,8 +31,8 @@ os.environ.update({
 # Добавляем корневую директорию в PYTHONPATH
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.main import app
-from app.core.database import Base, get_db
+from main import app
+from core.database import Base, get_db
 
 # Тестовая база данных
 TEST_DATABASE_URL = "postgresql+asyncpg://test_user:test_password@localhost:5432/test_db"
