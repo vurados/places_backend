@@ -3,10 +3,6 @@ name: Deploy
 on:
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -14,14 +10,35 @@ jobs:
     environment: production
 
     steps:
-      - name: Deploy to production
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            cd /opt/places-social-app
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --force-recreate app
-            docker system prune -f
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{secrets.HOST_PORT}}" \
+            ./ ${{ secrets.HOST_USER }}@${{ secrets.HOST_IP }}:/home/${{ secrets.HOST_USER }}/app
+
+      - name: Run deploy script
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_PORT }} ${{ secrets.HOST_USER }}@${{ secrets.HOST_IP }} << 'EOF'
+            set -e
+            cd /home/${{ secrets.HOST_USER }}/app
+
+            # Загружаем env (секреты хранятся в GitHub Secrets)
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+            # Проверка и получение сертификата, если нет
+            ./scripts/init-letsencrypt.sh || true
+            
+            # Останавливаем текущие контейнеры
+            docker compose -f docker-compose.yml down
+
+            # Собираем и поднимаем заново
+            docker compose -f docker-compose.yml up -d --build --force-recreate
+          EOF

@@ -4,8 +4,8 @@ set -e
 
 DOMAIN=vurados.ru
 EMAIL=kryuchkov2020@gmail.com # почта для Let's Encrypt
-DATA_PATH="./deploy/certs"
-WEBROOT_PATH="./deploy/certs-data"
+DATA_PATH="./deployments/certs"
+WEBROOT_PATH="./deployments/certs-data"
 
 if [ -d "$DATA_PATH" ]; then
   echo ">>> Сертификаты уже существуют: $DATA_PATH"
