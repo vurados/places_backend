@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+# COPY app/requirements.txt .
 
 # Копируем код приложения
-COPY app/ ./app/
+COPY app/ .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Создаем непривилегированного пользователя
 RUN useradd --create-home --shell /bin/bash appuser

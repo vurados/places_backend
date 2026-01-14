@@ -1,0 +1,8 @@
+db_user: "test_user"
+db_password: "test_password"
+db_name: "places_db"
+redis_password: "redis_password"
+minio_root_user: "minio_root"
+minio_root_password: "minio_password"
+domain: "192.168.56.2"
+env_name: "test"

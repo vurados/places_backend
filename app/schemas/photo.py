@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
@@ -19,5 +19,4 @@ class PhotoResponse(PhotoBase):
     thumbnail_url: Optional[str] = None
     created_at: datetime
     
-    class Config:
-        from_attribute = True
+    model_config = ConfigDict(from_attributes=True)

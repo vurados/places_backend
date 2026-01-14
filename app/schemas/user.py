@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ValidationInfo, field_validator, Field
+from pydantic import BaseModel, EmailStr, ValidationInfo, field_validator, Field, ConfigDict
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
@@ -48,8 +48,7 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attribute = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
     login: str  # Может быть email или username

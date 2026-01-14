@@ -1,0 +1,85 @@
+events {}
+
+http {
+    server {
+        listen 80;
+        server_name {{ domain_name }};
+
+        # Редирект всего трафика на HTTPS
+        return 301 https://$host$request_uri;
+    }
+
+    limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+    
+    server {
+        listen 443 ssl;
+        http2 on;
+        server_name {{ domain_name }};
+
+        ssl_certificate /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ domain_name }}/privkey.pem;
+        ssl_trusted_certificate /etc/letsencrypt/live/{{ domain_name }}/chain.pem;
+
+        # SSL настройки
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers on;
+        ssl_session_timeout 1d;
+        ssl_session_cache shared:SSL:10m;
+        ssl_stapling off;  # Disabled for self-signed/localhost
+        ssl_stapling_verify off;
+
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+        # Docker DNS
+        resolver 127.0.0.11 valid=30s;
+        set $upstream http://app:8000;
+
+        # Логи
+        access_log /var/log/nginx/api_access.log;
+        error_log  /var/log/nginx/api_error.log warn;
+
+        # Gzip
+        gzip on;
+        gzip_types text/plain application/json application/javascript text/css application/xml;
+        gzip_min_length 256;
+        gzip_comp_level 5;
+
+        # Limits & timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+        send_timeout 120s;
+
+
+        # API
+        location / {
+            limit_req zone=api_limit burst=20 nodelay;
+
+            proxy_pass $upstream;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+
+        # Метрики доступны только локалке
+        location /metrics {
+            allow 127.0.0.1;
+            allow 10.0.0.0/8;
+            deny all;
+
+            proxy_pass $upstream;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}

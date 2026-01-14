@@ -1,0 +1,7 @@
+- name: Deploy Docker services with Ansible
+  hosts: vps
+  become: true
+  roles:
+    - deploy
+  vars_files:
+    - group_vars/all/env.yml

@@ -20,12 +20,12 @@ def setup_logging():
         '%(asctime)s %(levelname)s %(name)s %(message)s'
     )
 
-    log_dir = Path("/var/log/places-social")
+    log_dir = Path("/app/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
     
     # File handler с ротацией
     file_handler = RotatingFileHandler(
-        '/var/log/places-social/app.log',
+        '/app/logs/app.log',
         maxBytes=10485760,  # 10MB
         backupCount=10
     )
