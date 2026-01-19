@@ -1,0 +1,47 @@
+
+# Internal access to monitoring/admin tools
+# Listens on localhost:8080 and proxies based on Host header
+
+server {
+    listen 127.0.0.1:8080;
+    server_name grafana.internal;
+    location / {
+        proxy_pass http://grafana:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 127.0.0.1:8080;
+    server_name portainer.internal;
+    location / {
+        proxy_pass http://portainer:9000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 127.0.0.1:8080;
+    server_name prometheus.internal;
+    location / {
+        proxy_pass http://prometheus:9090;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+server {
+    listen 127.0.0.1:8080;
+    server_name alertmanager.internal;
+    location / {
+        proxy_pass http://alertmanager:9093;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}

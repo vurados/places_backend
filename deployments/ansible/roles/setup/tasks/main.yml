@@ -1,0 +1,39 @@
+---
+# Setup role: Install dependencies and sync project files
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt:
+    name: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-buildx-plugin', 'docker-compose-plugin']
+    state: latest
+    update_cache: yes
+
+- name: Install rsync (required for synchronize)
+  apt:
+    name: rsync
+    state: present
+
+- name: Sync project files to VPS
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../"
+    dest: /opt/places_backend
+    delete: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.venv"
+      - "--exclude=.vagrant"
+      - "--exclude=venv"
+      - "--exclude=__pycache__"
+      - "--exclude=*.pyc"
+      - "--exclude=.pytest_cache"
+      - "--exclude=.old"
+      - "--exclude=.history"

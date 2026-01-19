@@ -1,0 +1,7 @@
+- name: Fast API Update
+  hosts: vps
+  become: true
+  roles:
+    - update_api
+  vars_files:
+    - group_vars/all/env.yml

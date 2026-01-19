@@ -2,7 +2,7 @@ import string
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import JWTError, jwt
+from jose import JWTError, jwt, ExpiredSignatureError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import bcrypt
@@ -39,7 +39,7 @@ def verify_password(plain_password: str, hashed_password: str, salt: str) -> boo
     except ValueError:
         return False
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -56,29 +56,44 @@ async def get_current_user(
     
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: str = payload.get("sub")
+        if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"No email in payload {token}",
+                detail="No user_id in payload",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"JWTError {token}",
+            detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
     # Ищем пользователя в базе данных
-
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalars().first()
+    try:
+        # Assuming user_id is a UUID string, but we pass it as is, sqlalchemy handles conversion if mapped to UUID
+        from uuid import UUID
+        user_uuid = UUID(user_id)
+        result = await db.execute(select(User).where(User.id == user_uuid))
+        user = result.scalars().first()
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user_id format in token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"User was not found with email {email}",
+            detail=f"User was not found with id {user_id}",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -124,13 +139,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def get_current_user_ws(token: str, db: AsyncSession):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: str = payload.get("sub")
+        if user_id is None:
             return None
-    except JWTError:
+        
+        from uuid import UUID
+        user_uuid = UUID(user_id)
+    except (JWTError, ValueError):
         return None
     
     from sqlalchemy import select
-    result = await db.execute(select(User).where(User.email == email))
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalars().first()
     return user

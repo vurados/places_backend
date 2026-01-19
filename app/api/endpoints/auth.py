@@ -69,6 +69,50 @@ async def register(
     
     return db_user
 
+@router.post("/token", response_model=Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    OAuth2 compatible token login, get an access token for future requests.
+    This endpoint is designed for Swagger UI support.
+    """
+    # Try to authenticate by username or email (form_data.username contains the input)
+    if "@" in form_data.username:
+        user = await authenticate_user(db, form_data.username, form_data.password)
+    else:
+        user = await authenticate_user_by_username(db, form_data.username, form_data.password)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is deactivated",
+        )
+    
+    # Update last login
+    user.last_login = datetime.now(timezone.utc)
+    await db.commit()
+
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    
+    # OAuth2 spec requires just access_token and token_type
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "refresh_token": create_access_token(data={"sub": str(user.id)}, expires_delta=timedelta(days=30))
+    }
+
 @router.post("/login", response_model=Token)
 async def login(
     form_data: UserLogin,
@@ -98,9 +142,9 @@ async def login(
     await db.commit()
     
     # Создаем токены
-    access_token = create_access_token(data={"sub": user.email})
+    access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_access_token(
-        data={"sub": user.email}, 
+        data={"sub": str(user.id)}, 
         expires_delta=timedelta(days=30)
     )
     

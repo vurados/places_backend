@@ -2,7 +2,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./deployments/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -16,11 +16,11 @@ services:
     restart: unless-stopped
     depends_on:
       - alertmanager
-  
+
   alertmanager:
     image: prom/alertmanager:latest
     ports:
-      - "9093:9093"
+      - "127.0.0.1:9093:9093"
     volumes:
       - ./deployments/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - ./deployments/monitoring/templates:/etc/alertmanager/templates
@@ -30,23 +30,11 @@ services:
       - '--storage.path=/alertmanager'
       - '--web.route-prefix=/'
     restart: unless-stopped
-    depends_on:
-      - alertmanager-telegram
-
-  alertmanager-telegram:
-    image: inch/alertmanager-telegram:latest
-    environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - TEMPLATE_PATHS=/etc/alertmanager-telegram/template.tmpl
-    volumes:
-      - ./deployments/monitoring/templates/telegram.tmpl:/etc/alertmanager-telegram/template.tmpl
-    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -71,8 +59,8 @@ services:
       - REDIS_ADDR=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: unless-stopped
-    depends_on:
-      - redis
+    # depends_on:
+    #   - redis
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -81,9 +69,9 @@ services:
     environment:
       - DATA_SOURCE_NAME=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable
     restart: unless-stopped
-    depends_on:
-      - db
-  
+    # depends_on:
+    #   - db
+
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
     ports:

@@ -1,7 +1,10 @@
-- name: Deploy Docker services with Ansible
+- name: Deploy Docker services and monitoring with Ansible
   hosts: vps
   become: true
   roles:
-    - deploy
+    - setup       # Install Docker and sync project files
+    - deploy      # Deploy main application
+    - role: monitoring
+      when: enable_monitoring | default(false) | bool
   vars_files:
     - group_vars/all/env.yml

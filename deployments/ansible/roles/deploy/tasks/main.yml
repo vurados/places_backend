@@ -1,39 +1,5 @@
-- name: Add Docker GPG apt Key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add Docker Repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
-    state: present
-
-- name: Update apt and install docker-ce
-  apt:
-    name: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-buildx-plugin', 'docker-compose-plugin']
-    state: latest
-    update_cache: yes
-
-- name: Install rsync (required for synchronize)
-  apt:
-    name: rsync
-    state: present
-
-- name: Sync project files to VPS
-  ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../../"
-    dest: /opt/places_backend
-    delete: yes
-    rsync_opts:
-      - "--exclude=.git"
-      - "--exclude=.venv"
-      - "--exclude=.vagrant"
-      - "--exclude=venv"
-      - "--exclude=__pycache__"
-      - "--exclude=*.pyc"
-      - "--exclude=.pytest_cache"
-      - "--exclude=.old"
-      - "--exclude=.history"
+---
+# Deploy role: Deploy main application stack
 
 - name: Create certificate directory
   file:
@@ -75,22 +41,16 @@
     mode: "0644"
   vars:
     domain_name: "{{ domain }}"  # from vault
-
-
-
-# - name: Export environment variables from Vault
-#   ansible.builtin.shell: |
-#     export DB_USER="{{ db_user }}"
-#     export DB_PASSWORD="{{ db_password }}"
-#     export DB_NAME="{{ db_name }}"
-#     export REDIS_PASSWORD="{{ redis_password }}"
-#     export MINIO_ROOT_USER="{{ minio_root_user }}"
-#     export MINIO_ROOT_PASSWORD="{{ minio_root_password }}"
-#     cd /opt/myapp && docker compose up -d
-#   args:
-#     executable: /bin/bash
   
-- name: Run docker-compose with secrets injected into environment (no disk)
+- name: Deploy Internal NGINX config from template
+  ansible.builtin.template:
+    src: internal_nginx.conf.j2
+    dest: /opt/places_backend/deployments/nginx/internal_nginx.conf
+    owner: root
+    group: root
+    mode: "0644"
+  
+- name: Run docker-compose for main application
   shell: |
     if [ "{{ env_name }}" = "prod" ]; then
       PROFILE_ARG="--profile prod"
@@ -100,13 +60,12 @@
     docker compose $PROFILE_ARG -f /opt/places_backend/docker-compose.yml up -d --build
   args:
     chdir: /opt/places_backend
-  environment:   # <-- here we pass all vaulted secrets into env
+  environment:
     DB_USER: "{{ db_user }}"
     DB_PASSWORD: "{{ db_password }}"
     DB_NAME: "{{ db_name }}"
     REDIS_PASSWORD: "{{ redis_password }}"
     MINIO_ROOT_USER: "{{ minio_root_user }}"
     MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
-    SECRET_KEY: "test_secret_key_change_in_production"
+    SECRET_KEY: "{{ secret_key | default('test_secret_key_change_in_production') }}"
   no_log: true
-

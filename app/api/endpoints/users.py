@@ -22,6 +22,10 @@ async def get_users(
     users = result.scalars().all()
     return users
 
+@router.get("/me", response_model=UserResponse)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
 @router.get("/{user_id}", response_model=UserResponse)  # UserResponse вместо User
 async def get_user(
     user_id: UUID,

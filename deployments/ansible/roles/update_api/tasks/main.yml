@@ -1,0 +1,22 @@
+---
+# Update API role: Sync code and restart app container
+
+- name: Sync project files to VPS
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../"
+    dest: /opt/places_backend
+    delete: no # Don't delete files (safer for fast updates)
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.venv"
+      - "--exclude=.vagrant"
+      - "--exclude=__pycache__"
+      - "--exclude=*.pyc"
+      - "--exclude=data/certbot" # Don't touch certs
+      - "--exclude=postgresql_data"
+      - "--exclude=minio_data"
+
+- name: Restart app container (triggers reload and migrations)
+  shell: docker compose restart app
+  args:
+    chdir: /opt/places_backend

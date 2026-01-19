@@ -11,6 +11,9 @@ app = FastAPI(
     title="Urban Places Social App",
     description="App for sharing places and routes",
     version="0.1.0",
+    docs_url="/docs",  # Swagger UI
+    redoc_url="/redoc",  # ReDoc UI
+    openapi_url="/openapi.json",  # OpenAPI schema
 )
 
 # CORS middleware
