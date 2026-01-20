@@ -32,7 +32,7 @@
     domain_name: "{{ domain }}"
   when: env_name != 'prod'
 
-- name: Deploy NGINX config from template
+- name: Setup NGINX config from template
   ansible.builtin.template:
     src: nginx.conf.j2
     dest: /opt/places_backend/deployments/nginx/nginx.conf
@@ -42,7 +42,7 @@
   vars:
     domain_name: "{{ domain }}"  # from vault
   
-- name: Deploy Internal NGINX config from template
+- name: Setup Internal NGINX config from template
   ansible.builtin.template:
     src: internal_nginx.conf.j2
     dest: /opt/places_backend/deployments/nginx/internal_nginx.conf

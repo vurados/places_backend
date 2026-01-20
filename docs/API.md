@@ -5,7 +5,7 @@ Complete API reference for the Urban Places Social App backend.
 ## Base URL
 
 - **Development**: `http://localhost:8000/api/v1`
-- **Production**: `https://yourdomain.com/api/v1`
+- **Production**: `https://vurados.ru/api/v1`
 
 ## Authentication
 
@@ -15,147 +15,77 @@ All authenticated endpoints require a JWT token in the `Authorization` header:
 Authorization: Bearer <your-jwt-token>
 ```
 
-### Obtain JWT Token
+### Authentication Endpoints
 
-**POST** `/auth/login`
+#### Register User
 
-```json
-{
-  "username": "user@example.com",
-  "password": "your-password"
-}
-```
-
-**Response:**
-
-```json
-{
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "token_type": "bearer"
-}
-```
-
----
-
-## Endpoints Overview
-
-| Category | Endpoint | Method | Auth Required |
-|----------|----------|--------|---------------|
-| [Authentication](#authentication-endpoints) | `/auth/register` | POST | No |
-| | `/auth/login` | POST | No |
-| [Users](#user-endpoints) | `/users/me` | GET | Yes |
-| | `/users/{user_id}` | GET | Yes |
-| [Places](#place-endpoints) | `/places` | GET, POST | Yes |
-| | `/places/{place_id}` | GET, PUT, DELETE | Yes |
-| [Friends](#friend-endpoints) | `/friends/requests` | GET, POST | Yes |
-| | `/friends` | GET | Yes |
-| [Messages](#message-endpoints) | `/messages` | GET, POST | Yes |
-| [Routes](#route-endpoints) | `/routes` | GET, POST | Yes |
-| | `/routes/{route_id}` | GET, PUT, DELETE | Yes |
-| [Photos](#photo-endpoints) | `/photos/upload` | POST | Yes |
-| [Notifications](#notification-endpoints) | `/notifications` | GET | Yes |
-
----
-
-## Authentication Endpoints
-
-### Register User
-
-**POST** `/auth/register`
-
+**POST** `/auth/register`  
 Creates a new user account.
 
 **Request Body:**
 
 ```json
 {
-  "username": "johndoe",
   "email": "john@example.com",
+  "username": "johndoe",
   "password": "SecurePassword123!",
-  "full_name": "John Doe"
+  "first_name": "John",
+  "last_name": "Doe"
 }
 ```
 
-**Response:** `201 Created`
+#### Login (JSON)
 
-```json
-{
-  "id": "uuid",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "full_name": "John Doe",
-  "created_at": "2024-01-14T10:00:00Z"
-}
-```
-
-### Login
-
-**POST** `/auth/login`
-
+**POST** `/auth/login`  
 Authenticate and receive JWT token.
 
 **Request Body:**
 
 ```json
 {
-  "username": "john@example.com",
+  "login": "john@example.com", // can be email or username
   "password": "SecurePassword123!"
 }
 ```
 
-**Response:** `200 OK`
+#### Login (OAuth2 Form)
 
-```json
-{
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "token_type": "bearer"
-}
-```
+**POST** `/auth/token`  
+Standard OAuth2 login for compatibility (e.g., Swagger).
+
+**Request Body**: `application/x-www-form-urlencoded`
+
+- `username`: Email or username
+- `password`: Password
+
+#### Generic OAuth
+
+**POST** `/auth/oauth`  
+Used for mobile/client-side social login integration.
+
+#### Delete Account
+
+**DELETE** `/auth/delete-account`  
+Deletes the current user's account. **Auth Required.**
 
 ---
 
 ## User Endpoints
 
+### List Users
+
+**GET** `/users/`  
+**Auth Required.**
+
 ### Get Current User
 
-**GET** `/users/me`
+**GET** `/users/me`  
+**Auth Required.**
 
-Returns the authenticated user's profile.
+### Get User Profile
 
-**Headers:**
-
-```
-Authorization: Bearer <token>
-```
-
-**Response:** `200 OK`
-
-```json
-{
-  "id": "uuid",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "full_name": "John Doe",
-  "bio": "Tech enthusiast",
-  "avatar_url": "https://...",
-  "created_at": "2024-01-14T10:00:00Z"
-}
-```
-
-### Update Profile
-
-**PUT** `/users/me`
-
-Update the current user's profile.
-
-**Request Body:**
-
-```json
-{
-  "full_name": "John Updated",
-  "bio": "New bio"
-}
-```
+**GET** `/users/{user_id}`  
+**Auth Required.**
 
 ---
 
@@ -163,208 +93,83 @@ Update the current user's profile.
 
 ### List Places
 
-**GET** `/places`
-
-Get a list of places with optional filters.
+**GET** `/places`  
+Returns public places. Optional geo-filtering.
 
 **Query Parameters:**
 
-- `skip` (int): Number of records to skip (default: 0)
-- `limit` (int): Max records to return (default: 100)
-- `lat` (float): Latitude for location-based search
-- `lon` (float): Longitude for location-based search
-- `radius` (float): Search radius in kilometers
-
-**Response:** `200 OK`
-
-```json
-[
-  {
-    "id": "uuid",
-    "name": "Central Park",
-    "description": "Beautiful park in the city",
-    "lat": 40.785091,
-    "lon": -73.968285,
-    "address": "New York, NY",
-    "category": "park",
-    "created_by": "uuid",
-    "created_at": "2024-01-14T10:00:00Z",
-    "photos": []
-  }
-]
-```
+- `skip` / `limit` (int)
+- `latitude` / `longitude` (float)
+- `radius` (float)
 
 ### Create Place
 
-**POST** `/places`
+**POST** `/places`  
+**Auth Required.**
 
-Create a new place.
+### Upload Place Photo
 
-**Request Body:**
+**POST** `/places/{place_id}/photos`  
+Upload a photo specifically for a place. **Auth Required.**
 
-```json
-{
-  "name": "My Favorite Cafe",
-  "description": "Great coffee shop",
-  "lat": 40.7580,
-  "lon": -73.9855,
-  "address": "123 Main St, New York",
-  "category": "cafe"
-}
-```
+---
 
-**Response:** `201 Created`
+## Search Endpoints
 
-### Get Place Details
+### Global Search
 
-**GET** `/places/{place_id}`
+**GET** `/search/global?q=TEXT`  
+Search users and places simultaneously.
 
-Get detailed information about a specific place.
+### Search Users
 
-**Response:** `200 OK`
+**GET** `/search/users?q=TEXT`
+
+### Search Places
+
+**GET** `/search/places?q=TEXT`
 
 ---
 
 ## Friend Endpoints
 
-### Send Friend Request
-
-**POST** `/friends/requests`
-
-Send a friend request to another user.
-
-**Request Body:**
-
-```json
-{
-  "user_id": "uuid-of-target-user"
-}
-```
-
-**Response:** `201 Created`
-
 ### Get Friend Requests
 
-**GET** `/friends/requests`
+**GET** `/friends/requests`  
+Returns pending requests for current user.
 
-Get pending friend requests (sent and received).
+### Send Friend Request
 
-**Response:** `200 OK`
+**POST** `/friends/requests`  
+**Body**: `{"receiver_id": "uuid"}`
 
-```json
-{
-  "sent": [],
-  "received": [
-    {
-      "id": "uuid",
-      "from_user": {
-        "id": "uuid",
-        "username": "alice",
-        "full_name": "Alice Smith"
-      },
-      "status": "pending",
-      "created_at": "2024-01-14T10:00:00Z"
-    }
-  ]
-}
-```
+### Update Request Status
 
-### Accept/Reject Friend Request
+**PATCH** `/friends/requests/{request_id}`  
+**Body**: `{"status": "accepted"}` // or "rejected"
 
-**PUT** `/friends/requests/{request_id}`
+### List Friends
 
-**Request Body:**
-
-```json
-{
-  "action": "accept"  // or "reject"
-}
-```
+**GET** `/friends/friends`  
+Returns list of accepted friends.
 
 ---
 
-## Message Endpoints
+## Messaging Endpoints
+
+### Get Conversation
+
+**GET** `/messages/{user_id}`  
+Returns messages with a specific user.
 
 ### Send Message
 
-**POST** `/messages`
+**POST** `/messages/{user_id}`  
+**Body**: `{"content": "text"}`
 
-Send a message to a friend.
+### Mark Message as Read
 
-**Request Body:**
-
-```json
-{
-  "receiver_id": "uuid",
-  "content": "Hello! How are you?"
-}
-```
-
-**Response:** `201 Created`
-
-### Get Messages
-
-**GET** `/messages`
-
-Get conversation with a specific user.
-
-**Query Parameters:**
-
-- `user_id` (uuid): ID of the conversation partner
-- `skip` (int): Pagination offset
-- `limit` (int): Max messages to return
-
----
-
-## Route Endpoints
-
-### Create Route
-
-**POST** `/routes`
-
-Create a new route with multiple places.
-
-**Request Body:**
-
-```json
-{
-  "name": "NYC Food Tour",
-  "description": "Best restaurants in Manhattan",
-  "places": ["place-uuid-1", "place-uuid-2", "place-uuid-3"]
-}
-```
-
-### Get User Routes
-
-**GET** `/routes`
-
-Get all routes created by the current user.
-
----
-
-## Photo Endpoints
-
-### Upload Photo
-
-**POST** `/photos/upload`
-
-Upload a photo to MinIO storage.
-
-**Request:**
-
-- Content-Type: `multipart/form-data`
-- Body: `file` (image file)
-- Optional: `place_id` (uuid) to associate with a place
-
-**Response:** `201 Created`
-
-```json
-{
-  "id": "uuid",
-  "url": "https://minio.../photo.jpg",
-  "uploaded_at": "2024-01-14T10:00:00Z"
-}
-```
+**PATCH** `/messages/{message_id}/read`
 
 ---
 
@@ -374,156 +179,45 @@ Upload a photo to MinIO storage.
 
 **GET** `/notifications`
 
-Get all notifications for the current user.
+### Mark Notification as Read
 
-**Response:** `200 OK`
+**PATCH** `/notifications/{notification_id}/read`
 
-```json
-[
-  {
-    "id": "uuid",
-    "type": "friend_request",
-    "message": "Alice sent you a friend request",
-    "read": false,
-    "created_at": "2024-01-14T10:00:00Z"
-  }
-]
-```
+### Mark All as Read
 
-### Mark as Read
+**POST** `/notifications/read-all`
 
-**PUT** `/notifications/{notification_id}/read`
+### Get Unread Count
 
-Mark a notification as read.
+**GET** `/notifications/unread-count`
+
+---
+
+## WebSockets
+
+### Real-time Gateway
+
+**WS** `/ws/ws?token=JWT_TOKEN`  
+Supports `chat_message` and `typing` event types.
+
+---
+
+## Planned / Under Development
+
+The following features have database models but currently **no API exposure**:
+
+- **Routes**: `POST /routes` exists in docs but is not yet implemented in the API layer.
+- **Reviews**: Database model `Review` exists.
+- **Reactions**: Database model `Reaction` exists.
+- **Collections**: Database model `Collection` exists.
 
 ---
 
 ## Error Responses
 
-All endpoints may return the following error responses:
-
-### 400 Bad Request
-
-```json
-{
-  "detail": "Invalid input data"
-}
-```
-
-### 401 Unauthorized
-
-```json
-{
-  "detail": "Could not validate credentials"
-}
-```
-
-### 403 Forbidden
-
-```json
-{
-  "detail": "Not enough permissions"
-}
-```
-
-### 404 Not Found
-
-```json
-{
-  "detail": "Resource not found"
-}
-```
-
-### 422 Validation Error
-
-```json
-{
-  "detail": [
-    {
-      "loc": ["body", "email"],
-      "msg": "value is not a valid email address",
-      "type": "value_error.email"
-    }
-  ]
-}
-```
-
-### 500 Internal Server Error
-
-```json
-{
-  "detail": "Internal server error"
-}
-```
-
----
-
-## Rate Limiting
-
-API requests are rate-limited via Nginx:
-
-- **Default**: 10 requests/second per IP
-- **Burst**: Up to 20 requests
-- Exceeding limits returns `429 Too Many Requests`
-
----
-
-## Interactive Documentation
-
-FastAPI provides automatic interactive API documentation:
-
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
-These interfaces allow you to test endpoints directly from your browser!
-
----
-
-## Example: Complete Authentication Flow
-
-### 1. Register
-
-```bash
-curl -X POST http://localhost:8000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "SecurePass123!",
-    "full_name": "Test User"
-  }'
-```
-
-### 2. Login
-
-```bash
-curl -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "test@example.com",
-    "password": "SecurePass123!"
-  }'
-```
-
-### 3. Use Token
-
-```bash
-TOKEN="<your-token-from-login>"
-
-curl -X GET http://localhost:8000/api/v1/users/me \
-  -H "Authorization: Bearer $TOKEN"
-```
-
----
-
-## WebSocket Support
-
-*(Future feature)* Real-time messaging via WebSocket connections.
-
----
-
-## Need Help?
-
-- Check the [Development Guide](DEVELOPMENT.md) for local setup
-- Review [Deployment Guide](DEPLOYMENT.md) for production setup
-- See FastAPI docs: <https://fastapi.tiangolo.com/>
+- `400 Bad Request`: Invalid input logic.
+- `401 Unauthorized`: Missing or invalid token.
+- `403 Forbidden`: Insufficient permissions.
+- `404 Not Found`: Resource does not exist.
+- `422 Validation Error`: JSON schema mismatch.
+- `429 Too Many Requests`: Rate limit exceeded (10 req/s default).

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Default values
 DEFAULT_USER="vagrant"
@@ -16,7 +16,7 @@ prompt_value() {
 echo "Configure SSH Tunnel Connection:"
 SERVER_USER=$(prompt_value "Enter SSH User" "$DEFAULT_USER")
 SERVER_HOST=$(prompt_value "Enter Server IP/Host" "$DEFAULT_HOST")
-IDENTITY_FILE=""
+IDENTITY_FILE="./.vagrant/machines/backend/libvirt/private_key"
 
 # Check if we need to ask for identity file (e.g., for AWS/VPS)
 read -p "Use specific SSH key? (y/N): " use_key

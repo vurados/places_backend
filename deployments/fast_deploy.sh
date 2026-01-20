@@ -29,7 +29,7 @@ echo "dummy_vault_password" > vault_pass.txt
 mkdir -p deployments/ansible/group_vars/all
 
 # Copy vagrant vars to the expected env file location
-cp deployments/ansible/vagrant_vars.yml deployments/ansible/group_vars/all/env.yml
+cp deployments/ansible/test_vars.yml deployments/ansible/group_vars/all/env.yml
 
 # Check if file exists before encrypting
 if [ ! -f "deployments/ansible/group_vars/all/env.yml" ]; then

@@ -67,7 +67,7 @@ This creates an Ubuntu 22.04 VM at `192.168.56.2`.
 **What this script does:**
 
 - Checks Vagrant is installed and VM is running
-- Encrypts `deployments/ansible/vagrant_vars.yml` with Ansible Vault
+- Encrypts `deployments/ansible/test_vars.yml` with Ansible Vault
 - Runs Ansible playbook against the Vagrant VM
 - Deploys all services (Nginx, App, PostgreSQL, Redis, MinIO)
 - Generates self-signed SSL certificates
@@ -89,7 +89,7 @@ curl -k https://192.168.56.2/health
 |---------|-----|-------------|
 | API | <https://192.168.56.2> | - |
 | API Docs | <https://192.168.56.2/docs> | - |
-| MinIO Console | <http://192.168.56.2:9001> | See `vagrant_vars.yml` |
+| MinIO Console | <http://192.168.56.2:9001> | See `test_vars.yml` |
 
 ### 5. SSH into VM
 
@@ -244,7 +244,7 @@ sudo docker restart places_backend-nginx-1
 ### Environment Variables Flow
 
 ```
-vagrant_vars.yml (test) / env.yml (prod)
+test_vars.yml (test) / env.yml (prod)
            ↓
     Ansible Vault (encrypted)
            ↓
