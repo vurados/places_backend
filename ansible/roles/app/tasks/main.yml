@@ -73,7 +73,7 @@
     else
       PROFILE_ARG=""
     fi
-    docker compose $PROFILE_ARG -f /opt/places_backend/compose/docker-compose.yml up -d --build
+    docker compose $PROFILE_ARG --profile portainer --env-file .env -f compose/docker-compose.yml up -d --build
   args:
     chdir: /opt/places_backend
   async: 600
@@ -87,4 +87,4 @@
     MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
     SECRET_KEY: "{{ secret_key | default('test_secret_key_change_in_production') }}"
     COMPOSE_HTTP_TIMEOUT: "300"
-  no_log: true
+  # no_log: true

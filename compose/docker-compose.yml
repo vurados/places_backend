@@ -54,7 +54,7 @@ services:
   db:
     image: postgres:15-alpine
     env_file:
-      - .env
+      - ../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -71,7 +71,7 @@ services:
   redis:
     image: redis:7-alpine
     env_file:
-      - .env
+      - ../.env
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
@@ -103,7 +103,8 @@ services:
     profiles: [ "portainer" ]
     ports:
       - "127.0.0.1:9443:9443"
-      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9002:9000"
+    command: --http-enabled
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

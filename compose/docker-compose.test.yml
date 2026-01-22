@@ -25,10 +25,10 @@ services:
 
   tests:
     build:
-      context: .
-      dockerfile: Dockerfile.test
+      context: ..
+      dockerfile: docker/Dockerfile.test
     volumes:
-      - .:/app
+      - ../:/app
     environment:
       DATABASE_URL: postgresql+asyncpg://test_user:test_password@postgres:5432/test_db
       REDIS_HOST: redis
