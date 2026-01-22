@@ -1,52 +1,113 @@
 # Deployment Guide
 
-This guide covers deploying the Urban Places Backend using Ansible, both for local testing with Vagrant and production deployment.
+This guide covers the architecture, orchestration, and CI/CD pipelines of the Urban Places Backend.
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Local Testing with Vagrant](#local-testing-with-vagrant)
+- [Architecture Overview](#architecture-overview)
+- [Service Stack](#service-stack)
+- [Orchestration (Ansible)](#orchestration-ansible)
+- [CI/CD Pipeline (GitHub Actions)](#cicd-pipeline-github-actions)
+- [Local Testing (Vagrant)](#local-testing-with-vagrant)
 - [Production Deployment](#production-deployment)
-- [Ansible Vault Setup](#ansible-vault-setup)
+- [Ansible Vault & Secrets](#ansible-vault-setup)
 - [SSL Certificates](#ssl-certificates)
-- [Environment Configuration](#environment-configuration)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
-## Prerequisites
+## Architecture Overview
 
-### Required Software
+The system follows a containerized micro-service architecture managed via Docker Compose and orchestrated by Ansible.
 
-- **Ansible** 2.9+
-- **Vagrant** 2.2+ (for local testing)
-- **VirtualBox or libvirt** (Vagrant provider)
-- **Git**
+```mermaid
+graph TD
+    User([User]) -->|HTTPS:443| Nginx[Nginx Reverse Proxy]
+    Admin([Admin]) -->|HTTPS:8080 via SSH Tunnel| Nginx
+    
+    subgraph "Application Layer"
+        Nginx -->|Proxy| FastAPI[app: FastAPI]
+        FastAPI --> Redis[(Redis: Cache)]
+        FastAPI --> DB[(PostgreSQL: DB)]
+        FastAPI --> MinIO[MinIO: S3 Storage]
+    end
 
-### Install Ansible
-
-```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install ansible
-
-# macOS
-brew install ansible
+    subgraph "Monitoring Layer"
+        Nginx -->|Scrape| Prom[Prometheus]
+        Prom --> Grafana[Grafana]
+        Prom --> Alert[Alertmanager]
+        Alert --> Email[SMTP/Telegram]
+    end
 ```
 
-### Install Vagrant
+### Traffic Flow
 
-```bash
-# Ubuntu/Debian
-sudo apt install vagrant
+1. **External**: All public traffic hits **Nginx** (80/443). Nginx handles SSL termination and proxies requests to the `app` container.
+2. **Internal**: Administrative tools (Grafana, Prometheus) are served by a separate **Internal Nginx** server block listening on `127.0.0.1:8080`. Access is only possible via SSH tunneling for security.
 
-# macOS
-brew install vagrant
-```
+---
+
+## Service Stack
+
+| Service | Image | Description |
+| --- | --- | --- |
+| **Nginx** | `nginx:alpine` | Entry point, SSL termination, rate limiting, and internal proxying. |
+| **App** | `custom:latest` | FastAPI application (Python 3.12). Handles API logic and WebSockets. |
+| **DB** | `postgres:15-alpine` | Primary relational database for users, places, and social data. |
+| **Redis** | `redis:7-alpine` | In-memory store for session caching, rate limiting, and WS signals. |
+| **MinIO** | `minio/minio` | S3-compatible object storage for user-uploaded photos. |
+
+---
+
+## Orchestration (Ansible)
+
+Deployment is automated using Ansible roles located in `deployments/ansible/roles/`.
+
+### Roles Breakdown
+
+#### 1. `setup`
+
+- Installs Docker Engine, Docker Buildx, and Compose plugin.
+- Syncs project files from the local environment to `/opt/places_backend` on the target host.
+- Configures system-level requirements (e.g., rsync).
+
+#### 2. `deploy`
+
+- **SSL**: Generates self-signed certificates for non-prod environments.
+- **Config**: Templates `nginx.conf` and `internal_nginx.conf` based on the target domain.
+- **Runtime**: Executes `docker compose up -d` with environment variables injected from Ansible Vault.
+
+#### 3. `monitoring`
+
+- (Optional) Deploys the Prometheus/Grafana stack using `docker-compose.monitoring.yml`.
+- Configures `alertmanager.yml` for notifications.
+
+---
+
+## CI/CD Pipeline (GitHub Actions)
+
+The project uses GitHub Actions for automated testing and deployment.
+
+### 1. CI Workflow (`ci-cd.yml`)
+
+Runs on every push to `main` and `develop`.
+
+- **Test**: Spins up real PostgreSQL/Redis containers and runs `pytest`.
+- **Security**: Runs `bandit` to scan for Python security vulnerabilities.
+
+### 2. CD Workflow (`Deploy.v2`)
+
+Manual triggers or automatic on `main` merge.
+
+- **Environment**: Pulls secrets from GitHub Secrets.
+- **Orchestration**: Dynamically generates an Ansible Vault file and executes the `playbook.yml`.
+- **Transparency**: The pipeline provides a full log of the deployment status.
 
 ---
 
 ## Local Testing with Vagrant
+
+Test the full deployment locally before deploying to production.
 
 Test the full deployment locally before deploying to production.
 

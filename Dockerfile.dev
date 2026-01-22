@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install dependencies before copying all code
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install dev dependencies
