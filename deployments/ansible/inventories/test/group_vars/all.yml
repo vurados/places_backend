@@ -6,6 +6,6 @@ minio_root_user: "minio_root"
 minio_root_password: "minio_password"
 domain: "192.168.56.2"
 env_name: "test"
-enable_monitoring: true  # Set to true to deploy monitoring stack
+enable_monitoring: true
 telegram_bot_token: ""
 telegram_chat_id: ""

@@ -1,0 +1,6 @@
+---
+- name: Full Site Deployment
+  import_playbook: bootstrap.yml
+
+- name: Application Deployment
+  import_playbook: deploy.yml

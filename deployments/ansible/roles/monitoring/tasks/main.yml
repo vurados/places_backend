@@ -1,7 +1,7 @@
 ---
 # Monitoring role: Deploy monitoring stack only
 
-- name: Deploy Alertmanager config from template
+- name: Setup Alertmanager config from template
   ansible.builtin.template:
     src: alertmanager.yml.j2
     dest: /opt/places_backend/deployments/monitoring/alertmanager.yml
@@ -16,6 +16,8 @@
                    up -d
   args:
     chdir: /opt/places_backend
+  async: 600
+  poll: 10
   environment:
     DB_USER: "{{ db_user }}"
     DB_PASSWORD: "{{ db_password }}"
@@ -26,4 +28,5 @@
     SECRET_KEY: "{{ secret_key | default('test_secret_key_change_in_production') }}"
     TELEGRAM_BOT_TOKEN: "{{ telegram_bot_token | default('') }}"
     TELEGRAM_CHAT_ID: "{{ telegram_chat_id | default('') }}"
+    COMPOSE_HTTP_TIMEOUT: "300"
   no_log: true

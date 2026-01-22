@@ -1,0 +1,6 @@
+---
+- name: Bootstrap Urban Places Backend Server
+  hosts: vps
+  become: true
+  roles:
+    - setup

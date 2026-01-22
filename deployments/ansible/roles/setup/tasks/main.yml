@@ -22,18 +22,3 @@
     name: rsync
     state: present
 
-- name: Sync project files to VPS
-  ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../../"
-    dest: /opt/places_backend
-    delete: yes
-    rsync_opts:
-      - "--exclude=.git"
-      - "--exclude=.venv"
-      - "--exclude=.vagrant"
-      - "--exclude=venv"
-      - "--exclude=__pycache__"
-      - "--exclude=*.pyc"
-      - "--exclude=.pytest_cache"
-      - "--exclude=.old"
-      - "--exclude=.history"

@@ -109,7 +109,7 @@ vagrant ssh backend -c "sudo docker logs places_backend-app-1 --tail 50"
 
 ### 1. Set Up Inventory
 
-Edit `deployments/ansible/inventory.ini`:
+Edit `deployments/ansible/inventories/production/hosts.ini`:
 
 ```ini
 [vps]
@@ -118,32 +118,42 @@ your-server-ip ansible_user=your_user ansible_ssh_private_key_file=~/.ssh/your_k
 
 ### 2. Create Production Variables
 
-Create `deployments/ansible/group_vars/all/env.yml`:
+Edit `deployments/ansible/inventories/production/group_vars/all.yml`:
 
 ```yaml
 db_user: "prod_user"
 db_password: "strong_random_password"
-db_name: "places_prod"
-redis_password: "strong_random_password"
-minio_root_user: "admin"
-minio_root_password: "strong_random_password"
-domain: "yourdomain.com"
-env_name: "prod"
+# ... other variables
 ```
 
 ### 3. Encrypt with Ansible Vault
 
 ```bash
 cd deployments/ansible
-ansible-vault encrypt group_vars/all/env.yml
+ansible-vault encrypt inventories/production/group_vars/all.yml
 # Enter vault password when prompted
 ```
 
 ### 4. Run Deployment
 
+The project provides three main playbooks for different scenarios:
+
+| Playbook | Description | Usage |
+|----------|-------------|-------|
+| `bootstrap.yml` | Initial server setup (Docker, dependencies) | New server setup |
+| `deploy.yml` | Application updates (Sync code, restart containers) | Regular updates |
+| `site.yml` | Full flow (Bootstrap + Deploy) | Full site deployment |
+
+**Example (Production Deployment):**
+
 ```bash
 cd deployments/ansible
-ansible-playbook -i inventory.ini deploy.yml --ask-vault-pass
+
+# First time setup
+ansible-playbook -i inventories/production/hosts.ini playbooks/bootstrap.yml --ask-vault-pass
+
+# Regular updates
+ansible-playbook -i inventories/production/hosts.ini playbooks/deploy.yml --ask-vault-pass
 ```
 
 ### 5. Set Up Let's Encrypt

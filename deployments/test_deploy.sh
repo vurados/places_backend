@@ -53,25 +53,18 @@ check_vagrant
 
 # vault setup
 echo "dummy_vault_password" > vault_pass.txt
-mkdir -p deployments/ansible/group_vars/all
 
-# Copy vagrant vars to the expected env file location
-cp deployments/ansible/test_vars.yml deployments/ansible/group_vars/all/env.yml
-
-# Check if file exists before encrypting
-if [ ! -f "deployments/ansible/group_vars/all/env.yml" ]; then
-    echo "Error: env.yml not found!"
-    exit 1
-fi
-
-echo "Encrypting vars..."
-ansible-vault encrypt deployments/ansible/group_vars/all/env.yml --vault-password-file vault_pass.txt
+# In the new structure, we don't need to copy/encrypt env.yml manually 
+# because it's already in inventories/test/group_vars/all.yml
+# We just need to make sure it's decrypted or use the vault pass if encrypted.
+# Local test vars are currently plain text in inventories/test/group_vars/all.yml
 
 echo "Running playbook..."
-ansible-playbook -i deployments/ansible/test_inventory.ini \
-    deployments/ansible/playbook.yml \
-    --vault-password-file vault_pass.txt
+cd deployments/ansible/
+ansible-playbook -i inventories/test/hosts.ini \
+    playbooks/site.yml \
+    --vault-password-file ../../vault_pass.txt
+cd ../../
 
 # Cleanup
 rm vault_pass.txt
-rm -rf deployments/ansible/group_vars

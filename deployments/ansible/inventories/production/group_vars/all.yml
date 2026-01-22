@@ -1,0 +1,13 @@
+# These variables should be encrypted with Ansible Vault
+db_user: "prod_user"
+db_password: "prod_password"
+db_name: "places_prod"
+redis_password: "prod_redis_password"
+minio_root_user: "prod_minio_user"
+minio_root_password: "prod_minio_password"
+domain: "yourdomain.com"
+env_name: "prod"
+enable_monitoring: false
+telegram_bot_token: ""
+telegram_chat_id: ""
+secret_key: "CHANGE_ME_IN_PRODUCTION"
