@@ -9,13 +9,13 @@ echo "Starting deployment..."
 git pull origin main
 
 # Pull latest Docker images
-docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml pull
+docker compose -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml pull
 
 # Recreate containers
-docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --force-recreate
+docker compose -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml up -d --force-recreate
 
 # Run migrations
-docker-compose exec app alembic upgrade head
+docker compose -f compose/docker-compose.yml exec app alembic upgrade head
 
 # Clean up old images
 docker system prune -f

@@ -25,26 +25,13 @@ check_vagrant
 
 # vault setup
 echo "dummy_vault_password" > vault_pass.txt
-# Ensure group_vars directory exists
-mkdir -p deployments/ansible/group_vars/all
-
-# Copy vagrant vars to the expected env file location
-cp deployments/ansible/test_vars.yml deployments/ansible/group_vars/all/env.yml
-
-# Check if file exists before encrypting
-if [ ! -f "deployments/ansible/group_vars/all/env.yml" ]; then
-    echo "Error: env.yml not found!"
-    exit 1
-fi
-
-echo "Encrypting vars..."
-ansible-vault encrypt deployments/ansible/group_vars/all/env.yml --vault-password-file vault_pass.txt
 
 echo "Running fast API update..."
-ansible-playbook -i deployments/ansible/test_inventory.ini \
-    deployments/ansible/update_api.yml \
-    --vault-password-file vault_pass.txt
+cd ansible/
+ansible-playbook -i inventories/test/hosts.ini \
+    playbooks/update_api.yml \
+    --vault-password-file ../vault_pass.txt
+cd ../
 
 # Cleanup
 rm vault_pass.txt
-rm -rf deployments/ansible/group_vars

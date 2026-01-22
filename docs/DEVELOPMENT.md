@@ -88,7 +88,7 @@ SECRET_KEY=your-secret-key-here
 ### 5. Start Services
 
 ```bash
-docker compose up -d
+docker compose -f compose/docker-compose.dev.yml up -d
 ```
 
 This starts:
@@ -169,7 +169,7 @@ alembic current
 
 ```bash
 # Using Docker Compose
-docker compose -f docker-compose.test.yml up --build
+docker compose -f compose/docker-compose.test.yml up --build
 
 # Or locally
 cd app
@@ -246,51 +246,12 @@ This automatically runs formatters and linters before each commit.
 
 ```
 places_backend/
-├── app/
-│   ├── alembic/              # Database migrations
-│   │   ├── versions/         # Migration files
-│   │   └── env.py            # Alembic config
-│   ├── api/                  # API layer
-│   │   ├── endpoints/        # Route handlers
-│   │   │   ├── auth.py
-│   │   │   ├── users.py
-│   │   │   ├── places.py
-│   │   │   ├── friends.py
-│   │   │   └── messages.py
-│   │   └── api_router.py     # Main router
-│   ├── core/                 # Core configuration
-│   │   ├── config.py         # Settings
-│   │   ├── database.py       # DB connection
-│   │   ├── logging.py        # Logging setup
-│   │   └── monitoring.py     # Prometheus metrics
-│   ├── models/               # SQLAlchemy models
-│   │   ├── user.py
-│   │   ├── place.py
-│   │   ├── friend.py
-│   │   └── message.py
-│   ├── schemas/              # Pydantic schemas
-│   │   ├── user.py
-│   │   ├── place.py
-│   │   └── ...
-│   ├── services/             # Business logic
-│   │   ├── auth_service.py
-│   │   ├── place_service.py
-│   │   └── ...
-│   ├── tests/                # Test suite
-│   │   ├── conftest.py       # Test fixtures
-│   │   ├── test_auth.py
-│   │   └── ...
-│   ├── main.py               # FastAPI app
-│   └── requirements.txt      # Dependencies
-├── deployments/
-│   ├── ansible/              # Deployment automation
-│   ├── monitoring/           # Prometheus/Grafana configs
-│   └── nginx/                # Nginx configuration
-├── docs/                     # Documentation
-├── docker-compose.yml        # Main services
-├── docker-compose.test.yml   # Test environment
-├── Dockerfile                # Production image
-├── Dockerfile.test           # Test image
+├── ansible/              # Deployment automation (roles, playbooks, inventories)
+├── app/                  # FastAPI Application code
+├── compose/              # Docker Compose files
+├── deployments/          # Configuration and scripts (nginx, monitoring, ssl)
+├── docker/               # Dockerfiles
+├── docs/                 # Documentation
 └── README.md
 ```
 
@@ -322,7 +283,7 @@ places_backend/
 3. **Run tests**
 
    ```bash
-   docker compose -f docker-compose.test.yml up --build
+   docker compose -f compose/docker-compose.test.yml up --build
    ```
 
 4. **Format code**

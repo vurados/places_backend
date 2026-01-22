@@ -19,8 +19,8 @@ The project includes a comprehensive monitoring stack:
 ### Start Monitoring Stack
 
 ```bash
-# Start with monitoring services
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+# Start with monitoring and portainer services
+docker compose -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml --profile monitoring --profile portainer up -d
 ```
 
 ### Access Monitoring Tools
@@ -230,7 +230,7 @@ curl -X POST http://localhost:9093/api/v1/alerts \
 
 ### Retention Period
 
-Prometheus data retention (in `docker-compose.monitoring.yml`):
+Prometheus data retention (in `compose/docker-compose.monitoring.yml`):
 
 ```yaml
 prometheus:

@@ -10,11 +10,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
       interval: 5s
       timeout: 5s
       retries: 5
-  
+
   redis:
     image: redis:7-alpine
     command: redis-server --requirepass ${REDIS_PASSWORD}
@@ -35,10 +35,10 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: docker/Dockerfile.dev
     env_file:
-      - ./.env
+      - ../.env
     ports:
       - "8000:8000"
     # environment:
@@ -47,10 +47,10 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ../:/app
     working_dir: /app/app
     command: /bin/bash -c "alembic upgrade head && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-    
+
 volumes:
   postgres_data:
   redis_data:

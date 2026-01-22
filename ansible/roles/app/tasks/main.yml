@@ -3,7 +3,7 @@
 
 - name: Sync project files to VPS
   ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../../../"
+    src: "{{ playbook_dir }}/../../"
     dest: /opt/places_backend
     delete: yes
     rsync_opts:
@@ -73,7 +73,7 @@
     else
       PROFILE_ARG=""
     fi
-    docker compose $PROFILE_ARG -f /opt/places_backend/docker-compose.yml up -d --build
+    docker compose $PROFILE_ARG -f /opt/places_backend/compose/docker-compose.yml up -d --build
   args:
     chdir: /opt/places_backend
   async: 600

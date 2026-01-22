@@ -11,8 +11,8 @@
 
 - name: Start monitoring stack
   shell: |
-    docker compose -f /opt/places_backend/docker-compose.yml \
-                   -f /opt/places_backend/docker-compose.monitoring.yml \
+    docker compose -f /opt/places_backend/compose/docker-compose.yml \
+                   -f /opt/places_backend/compose/docker-compose.monitoring.yml \
                    up -d
   args:
     chdir: /opt/places_backend

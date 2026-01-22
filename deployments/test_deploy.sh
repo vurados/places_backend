@@ -60,11 +60,11 @@ echo "dummy_vault_password" > vault_pass.txt
 # Local test vars are currently plain text in inventories/test/group_vars/all.yml
 
 echo "Running playbook..."
-cd deployments/ansible/
+cd ansible/
 ansible-playbook -i inventories/test/hosts.ini \
     playbooks/site.yml \
-    --vault-password-file ../../vault_pass.txt
-cd ../../
+    --vault-password-file ../vault_pass.txt
+cd ../
 
 # Cleanup
 rm vault_pass.txt

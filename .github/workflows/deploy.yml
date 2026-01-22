@@ -37,8 +37,8 @@ jobs:
             ./scripts/init-letsencrypt.sh || true
             
             # Останавливаем текущие контейнеры
-            docker compose -f docker-compose.yml down
+            docker compose -f compose/docker-compose.yml down
 
             # Собираем и поднимаем заново
-            docker compose -f docker-compose.yml up -d --build --force-recreate
+            docker compose -f compose/docker-compose.yml up -d --build --force-recreate
           EOF

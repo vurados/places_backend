@@ -67,7 +67,7 @@ This creates an Ubuntu 22.04 VM at `192.168.56.2`.
 **What this script does:**
 
 - Checks Vagrant is installed and VM is running
-- Encrypts `deployments/ansible/test_vars.yml` with Ansible Vault
+- Encrypts `ansible/inventories/test/group_vars/all.yml` with Ansible Vault
 - Runs Ansible playbook against the Vagrant VM
 - Deploys all services (Nginx, App, PostgreSQL, Redis, MinIO)
 - Generates self-signed SSL certificates
@@ -89,7 +89,7 @@ curl -k https://192.168.56.2/health
 |---------|-----|-------------|
 | API | <https://192.168.56.2> | - |
 | API Docs | <https://192.168.56.2/docs> | - |
-| MinIO Console | <http://192.168.56.2:9001> | See `test_vars.yml` |
+| MinIO Console | <http://192.168.56.2:9001> | See `ansible/inventories/test/group_vars/all.yml` |
 
 ### 5. SSH into VM
 
@@ -109,7 +109,7 @@ vagrant ssh backend -c "sudo docker logs places_backend-app-1 --tail 50"
 
 ### 1. Set Up Inventory
 
-Edit `deployments/ansible/inventories/production/hosts.ini`:
+Edit `ansible/inventories/production/hosts.ini`:
 
 ```ini
 [vps]
@@ -118,7 +118,7 @@ your-server-ip ansible_user=your_user ansible_ssh_private_key_file=~/.ssh/your_k
 
 ### 2. Create Production Variables
 
-Edit `deployments/ansible/inventories/production/group_vars/all.yml`:
+Edit `ansible/inventories/production/group_vars/all.yml`:
 
 ```yaml
 db_user: "prod_user"
@@ -129,7 +129,7 @@ db_password: "strong_random_password"
 ### 3. Encrypt with Ansible Vault
 
 ```bash
-cd deployments/ansible
+cd ansible
 ansible-vault encrypt inventories/production/group_vars/all.yml
 # Enter vault password when prompted
 ```
@@ -147,7 +147,7 @@ The project provides three main playbooks for different scenarios:
 **Example (Production Deployment):**
 
 ```bash
-cd deployments/ansible
+cd ansible
 
 # First time setup
 ansible-playbook -i inventories/production/hosts.ini playbooks/bootstrap.yml --ask-vault-pass
@@ -192,19 +192,19 @@ vault_password_variable: $ANSIBLE_VAULT_PASSWORD
 
 ```bash
 # Encrypt existing file
-ansible-vault encrypt deployments/ansible/group_vars/all/env.yml
+ansible-vault encrypt ansible/inventories/production/group_vars/all.yml
 
 # Edit encrypted file
-ansible-vault edit deployments/ansible/group_vars/all/env.yml
+ansible-vault edit ansible/inventories/production/group_vars/all.yml
 
 # Decrypt file (for debugging only!)
-ansible-vault decrypt deployments/ansible/group_vars/all/env.yml
+ansible-vault decrypt ansible/inventories/production/group_vars/all.yml
 ```
 
 ### Viewing Encrypted Content
 
 ```bash
-ansible-vault view deployments/ansible/group_vars/all/env.yml
+ansible-vault view ansible/inventories/production/group_vars/all.yml
 ```
 
 ---
@@ -250,11 +250,12 @@ sudo docker restart places_backend-nginx-1
 - **Default** (no profile): App, Nginx, DB, Redis, MinIO
 - **prod**: Adds Certbot for Let's Encrypt
 - **monitoring**: Adds Prometheus, Grafana (see [MONITORING.md](MONITORING.md))
+- **portainer**: Adds Portainer for container management
 
 ### Environment Variables Flow
 
 ```
-test_vars.yml (test) / env.yml (prod)
+ansible/inventories/test/group_vars/all.yml (test) / ansible/inventories/production/group_vars/all.yml (prod)
            ↓
     Ansible Vault (encrypted)
            ↓
