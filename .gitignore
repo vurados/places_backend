@@ -7,4 +7,4 @@ __pycache__
 .vagrant
 .vscode
 .idea
-.old
+vault_pass.txt

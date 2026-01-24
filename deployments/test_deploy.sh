@@ -5,8 +5,11 @@
 # Usage: ./deploy_vagrant.sh
 
 # Ensure script is run from project root or checks paths
-SCRIPT_DIR=$(dirname "$0")
-PROJECT_ROOT="$SCRIPT_DIR/../.."
+# If run from root, SCRIPT_DIR is deployments
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+cd "$PROJECT_ROOT"
 
 # Function to check Vagrant status
 check_vagrant() {
@@ -20,15 +23,9 @@ check_vagrant() {
         exit 1
     fi
     
-    # Check if any VM is running (naive check for 'running' string in status)
-    # vagrant status --machine-readable returns state line like:
-    # timestamps,target,state,running
-    # We'll check for the backend machine specifically if possible, or any running machine
-    
-    # Using 'vagrant status' machine readable output
+    # Check if any VM is running
     STATUS=$(vagrant status --machine-readable | grep "backend,state," | cut -d, -f4)
     
-    # Check if "running" is in the status output
     if [[ "$STATUS" != *"running"* ]]; then
         echo "Vagrant VM is not running. Current status: $STATUS"
         read -p "Do you want to start the Vagrant VM now? (y/n) " -n 1 -r
@@ -51,20 +48,17 @@ check_vagrant() {
 
 check_vagrant
 
-# vault setup
-echo "dummy_vault_password" > vault_pass.txt
-
-# In the new structure, we don't need to copy/encrypt env.yml manually 
-# because it's already in inventories/test/group_vars/all.yml
-# We just need to make sure it's decrypted or use the vault pass if encrypted.
-# Local test vars are currently plain text in inventories/test/group_vars/all.yml
-
 echo "Running playbook..."
 cd ansible/
+# Use vault password file from root if it exists
+VAULT_OPT=""
+if [ -f "../vault_pass.txt" ]; then
+    VAULT_OPT="--vault-password-file ../vault_pass.txt"
+fi
+
 ansible-playbook -i inventories/test/hosts.ini \
     playbooks/site.yml \
-    --vault-password-file ../vault_pass.txt
+    $VAULT_OPT
 cd ../
 
-# Cleanup
-rm vault_pass.txt
+echo "Deployment finished."

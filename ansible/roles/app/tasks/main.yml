@@ -65,6 +65,14 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: Setup .env file from template
+  ansible.builtin.template:
+    src: env.j2
+    dest: /opt/places_backend/.env
+    owner: root
+    group: root
+    mode: "0644"
   
 - name: Run docker-compose for main application
   shell: |
@@ -79,12 +87,5 @@
   async: 600
   poll: 10
   environment:
-    DB_USER: "{{ db_user }}"
-    DB_PASSWORD: "{{ db_password }}"
-    DB_NAME: "{{ db_name }}"
-    REDIS_PASSWORD: "{{ redis_password }}"
-    MINIO_ROOT_USER: "{{ minio_root_user }}"
-    MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
-    SECRET_KEY: "{{ secret_key | default('test_secret_key_change_in_production') }}"
     COMPOSE_HTTP_TIMEOUT: "300"
   # no_log: true
