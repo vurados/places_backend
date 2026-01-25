@@ -36,7 +36,8 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /install /usr/local
 COPY app/ .
 
-RUN useradd --create-home --shell /bin/bash appuser
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
