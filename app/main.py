@@ -4,8 +4,20 @@ from core.monitoring import metrics_middleware, metrics_endpoint
 from core.config import settings
 from api import api_router
 from core.logging import setup_logging
+from sqlalchemy import text
+from fastapi import HTTPException
+from core.database import engine
+
+from contextlib import asynccontextmanager
 
 setup_logging()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    yield
+    # Shutdown logic
+    await engine.dispose()
 
 app = FastAPI(
     title="Urban Places Social App",
@@ -14,6 +26,7 @@ app = FastAPI(
     docs_url="/docs",  # Swagger UI
     redoc_url="/redoc",  # ReDoc UI
     openapi_url="/openapi.json",  # OpenAPI schema
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -40,4 +53,17 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "ok"}
+
+@app.get("/health/live")
+async def health_live():
+    return {"status": "alive"}
+
+@app.get("/health/ready")
+async def health_ready():
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return {"status": "ready"}
+    except Exception:
+        raise HTTPException(status_code=503, detail="Database not ready")

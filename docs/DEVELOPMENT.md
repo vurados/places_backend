@@ -1,73 +1,69 @@
-# Development Guide
+# Backend Development Guide (Kubernetes)
 
-Guide for setting up local development environment and contributing to the project.
-
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Workflow Options](#choose-your-workflow)
-- [Shared Information](#shared-information)
-
----
+This guide is for developers building and testing the `places_backend` application within a local Kubernetes environment.
 
 ## Prerequisites
 
-### Required Software
-
-- **Python 3.12+**
-- **Docker & Docker Compose**
-- **Git**
-- **Poetry** (optional, for dependency management)
-
-### Recommended Tools
-
-- **VS Code** with Python extension
-- **Postman** or **HTTPie** for API testing
-- **DBeaver** or **pgAdmin** for database management
-
----
+- **Docker**: For building container images.
+- **Minikube**: Local Kubernetes cluster.
+- **kubectl**: Kubernetes command-line tool.
+- **Python 3.12**: Local installation for IDE support (optional but recommended).
 
 ## Choose Your Workflow
 
-The project supports two main development workflows depending on your focus.
+### 1. Unified K8s Workflow (Recommended)
 
-### 1. [Backend Development](DEVELOPMENT_BACKEND.md)
+Run the entire stack in Minikube to ensure your changes work in a production-like environment.
 
-**Recommended for most contributors.**
+- **Start here**: Follow the **[K8s Minikube Setup Guide](K8S_MINIKUBE_SETUP.md)**.
+- **Pros**: Full environment parity, tests HPA and Ingress configurations.
+- **Cons**: Image rebuilds required for code changes (automated via `setup_local_k8s.sh`).
 
-- Focus on: API, Business Logic, Models.
-- Environment: Docker Compose (`docker-compose.dev.yml`).
-- Pros: Fast iteration, instant code reload, lightweight.
+### 2. Rapid Iteration (Local Development)
 
-### 2. [DevOps & Infrastructure](DEVELOPMENT_DEVOPS.md)
+For rapid development of business logic, you can run the FastAPI app locally against the databases in Kubernetes.
 
-**Recommended for platform engineers.**
+1. **Forward Database Ports**:
 
-- Focus on: Ansible, Nginx, SSL, Monitoring, Deployment Scripts.
-- Environment: Vagrant VM (`Vagrantfile`) + Ansible.
-- Pros: Production-like environment, full stack verification.
+    ```bash
+    kubectl port-forward -n places-backend deployment/db 5432:5432
+    kubectl port-forward -n places-backend deployment/redis 6379:6379
+    ```
+
+2. **Run FastAPI Locally**:
+
+    ```bash
+    # Set your .env to point to localhost
+    export DB_HOST=localhost
+    export REDIS_HOST=localhost
+    uvicorn main:app --reload
+    ```
 
 ---
 
----
+## Project Structure
 
-## Shared Information
-
-### Project Structure
-
-See the specific guides for directory breakdowns, but generally:
-
-- `app/`: Source code.
-- `deployments/`: Infrastructure and CI/CD.
+- `app/`: Source code including API, models, and business logic.
+- `k8s/`: Kubernetes manifests (Deployments, Services, HPA, etc.).
 - `docs/`: Guides and API reference.
 
-### Contributing
+## Testing
 
-1. Create a feature branch.
-2. Follow the workflow in your chosen guide.
-3. Submit a Pull Request with passing tests.
+### Automated Tests in Kubernetes
+
+Run the full test suite inside a running pod:
+
+```bash
+kubectl exec -it deployment/places-backend -n places-backend -- pytest
+```
 
 ---
+
+## Code Style
+
+- **Formatting**: Use `black app/`.
+- **Linting**: Use `flake8 app/`.
+- **Imports**: Use `isort app/`.
 
 ## Additional Resources
 

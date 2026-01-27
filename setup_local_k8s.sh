@@ -15,6 +15,9 @@ fi
 echo "=== Enabling Ingress Addon ==="
 minikube addons enable ingress
 
+echo "=== Enabling Metrics Server Addon ==="
+minikube addons enable metrics-server
+
 echo "=== Applying Manifests ==="
 kubectl apply -f k8s/base.yaml
 kubectl apply -f k8s/
