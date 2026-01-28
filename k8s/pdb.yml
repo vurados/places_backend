@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: places-backend-pdb
+  namespace: places-backend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: places-backend

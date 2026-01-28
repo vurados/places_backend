@@ -5,6 +5,11 @@ metadata:
   namespace: places-backend
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: places-backend
@@ -19,89 +24,13 @@ spec:
         # imagePullPolicy: IfNotPresent
         image: places_backend-app:latest
         imagePullPolicy: Never
-        command: ["/bin/bash", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
         workingDir: /app
-        env:
-        - name: DB_USER
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: DB_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: DB_PASSWORD
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: DB_NAME
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: DB_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: DB_PORT
-        - name: REDIS_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: REDIS_HOST
-        - name: REDIS_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: REDIS_PORT
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: REDIS_PASSWORD
-        - name: MINIO_ENDPOINT
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: MINIO_ENDPOINT
-        - name: MINIO_ROOT_USER
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: MINIO_ROOT_USER
-        - name: MINIO_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: MINIO_ROOT_PASSWORD
-        - name: MINIO_BUCKET
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: MINIO_BUCKET
-        - name: MINIO_SECURE
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: MINIO_SECURE
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: SECRET_KEY
-        - name: ALGORITHM
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: ALGORITHM
-        - name: ACCESS_TOKEN_EXPIRE_MINUTES
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: ACCESS_TOKEN_EXPIRE_MINUTES
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
         ports:
         - containerPort: 8000
         resources:

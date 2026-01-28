@@ -19,7 +19,11 @@ echo "=== Enabling Metrics Server Addon ==="
 minikube addons enable metrics-server
 
 echo "=== Applying Manifests ==="
-kubectl apply -f k8s/base.yaml
+kubectl apply -f k8s/base.yml
+
+# We delete the job first because k8s won't re-run a completed Job with the same name
+kubectl delete job migrations -n places-backend --ignore-not-found
+
 kubectl apply -f k8s/
 
 echo "=== Setup Complete! ==="

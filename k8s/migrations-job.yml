@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  namespace: places-backend
+spec:
+  template:
+    metadata:
+      name: migrations
+    spec:
+      containers:
+      - name: alembic
+        image: places_backend-app:latest
+        imagePullPolicy: Never
+        command: ["alembic", "upgrade", "head"]
+        workingDir: /app
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+      restartPolicy: OnFailure
+  backoffLimit: 4
