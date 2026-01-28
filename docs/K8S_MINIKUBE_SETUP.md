@@ -45,18 +45,7 @@ minikube image load places_backend-app:latest
 Apply all Kubernetes manifests from the `k8s/` directory:
 
 ```bash
-# Apply namespace, configmaps, secrets, and PVCs
-kubectl apply -f k8s/base.yml
-
-# Apply backend dependencies (DB, Redis, Minio)
-kubectl apply -f k8s/db.yml
-kubectl apply -f k8s/redis.yml
-kubectl apply -f k8s/minio.yml
-
-# Apply the FastAPI application and Ingress
-kubectl apply -f k8s/app.yml
-kubectl apply -f k8s/ingress.yml
-kubectl apply -f k8s/hpa.yml
+kubectl apply -f k8s/
 ```
 
 > [!TIP]

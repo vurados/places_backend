@@ -4,10 +4,13 @@ metadata:
   name: migrations
   namespace: places-backend
 spec:
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 300
   template:
     metadata:
       name: migrations
     spec:
+      restartPolicy: OnFailure
       containers:
       - name: alembic
         image: places_backend-app:latest
@@ -19,5 +22,3 @@ spec:
             name: app-config
         - secretRef:
             name: app-secrets
-      restartPolicy: OnFailure
-  backoffLimit: 4
