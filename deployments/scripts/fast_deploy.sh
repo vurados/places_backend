@@ -23,6 +23,12 @@ check_vagrant() {
 
 check_vagrant
 
+# Ensure script is run from project root or checks paths
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
+cd "$PROJECT_ROOT"
+
 # vault setup
 echo "dummy_vault_password" > vault_pass.txt
 

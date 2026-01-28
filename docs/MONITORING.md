@@ -80,7 +80,7 @@ http://localhost:8000/metrics
 
 ### Scrape Targets
 
-Edit `deployments/monitoring/prometheus.yml`:
+Edit `deployments/configs/monitoring/prometheus.yml`:
 
 ```yaml
 scrape_configs:
@@ -156,7 +156,7 @@ sum(rate(http_requests_total{http_status=~"5.."}[5m]))
 
 ### Alert Rules
 
-Alerts are defined in `deployments/monitoring/prometheus.yml`:
+Alerts are defined in `deployments/configs/monitoring/prometheus.yml`:
 
 ```yaml
 groups:
@@ -243,7 +243,7 @@ prometheus:
 Auto-configure data sources and dashboards:
 
 ```
-deployments/monitoring/grafana/provisioning/
+deployments/configs/monitoring/grafana/provisioning/
 ├── datasources/
 │   └── prometheus.yml
 └── dashboards/

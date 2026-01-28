@@ -249,7 +249,9 @@ places_backend/
 ├── ansible/              # Deployment automation (roles, playbooks, inventories)
 ├── app/                  # FastAPI Application code
 ├── compose/              # Docker Compose files
-├── deployments/          # Configuration and scripts (nginx, monitoring, ssl)
+├── deployments/          # Deployment-related files
+│   ├── configs/          # Configuration files (nginx, monitoring, ssl)
+│   └── scripts/          # Deployment and utility scripts
 ├── docker/               # Dockerfiles
 ├── docs/                 # Documentation
 └── README.md
@@ -469,7 +471,7 @@ Add the following to your local `/etc/hosts` file (macOS/Linux) or `C:\Windows\S
 Run the helper script:
 
 ```bash
-./deployments/connect_internal.sh
+./deployments/scripts/connect_internal.sh
 ```
 
 Follow the prompts to enter your server user and IP (defaults to Vagrant settings).

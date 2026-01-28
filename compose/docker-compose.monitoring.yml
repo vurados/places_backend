@@ -4,7 +4,7 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
-      - ../deployments/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../deployments/configs/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -22,8 +22,8 @@ services:
     ports:
       - "127.0.0.1:9093:9093"
     volumes:
-      - ../deployments/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - ../deployments/monitoring/templates:/etc/alertmanager/templates
+      - ../deployments/configs/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ../deployments/configs/monitoring/templates:/etc/alertmanager/templates
       - alertmanager_data:/alertmanager
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
@@ -40,7 +40,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
-      - ../deployments/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ../deployments/configs/monitoring/grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -77,7 +77,7 @@ services:
     ports:
       - "9115:9115"
     volumes:
-      - ../deployments/monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml
+      - ../deployments/configs/monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: unless-stopped
 
 volumes:

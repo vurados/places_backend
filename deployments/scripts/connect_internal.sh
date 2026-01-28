@@ -12,11 +12,15 @@ prompt_value() {
     echo "${val:-$2}"
 }
 
+# Ensure script is run from project root or checks paths
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
 # Get connection details
 echo "Configure SSH Tunnel Connection:"
 SERVER_USER=$(prompt_value "Enter SSH User" "$DEFAULT_USER")
 SERVER_HOST=$(prompt_value "Enter Server IP/Host" "$DEFAULT_HOST")
-IDENTITY_FILE="./.vagrant/machines/backend/libvirt/private_key"
+IDENTITY_FILE="$PROJECT_ROOT/.vagrant/machines/backend/libvirt/private_key"
 
 # Check if we need to ask for identity file (e.g., for AWS/VPS)
 read -p "Use specific SSH key? (y/N): " use_key

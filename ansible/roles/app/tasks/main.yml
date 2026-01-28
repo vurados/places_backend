@@ -51,7 +51,7 @@
 - name: Setup NGINX config from template
   ansible.builtin.template:
     src: nginx.conf.j2
-    dest: /opt/places_backend/deployments/nginx/nginx.conf
+    dest: /opt/places_backend/deployments/configs/nginx/nginx.conf
     owner: root
     group: root
     mode: "0644"
@@ -61,7 +61,7 @@
 - name: Setup Internal NGINX config from template
   ansible.builtin.template:
     src: internal_nginx.conf.j2
-    dest: /opt/places_backend/deployments/nginx/internal_nginx.conf
+    dest: /opt/places_backend/deployments/configs/nginx/internal_nginx.conf
     owner: root
     group: root
     mode: "0644"

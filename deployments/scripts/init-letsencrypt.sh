@@ -1,14 +1,18 @@
 #!/bin/bash
 
-set -e
+# Ensure script is run from project root or checks paths
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
+cd "$PROJECT_ROOT"
 
 DOMAIN=vurados.ru
 EMAIL=kryuchkov2020@gmail.com # почта для Let's Encrypt
-DATA_PATH="./deployments/certs"
-WEBROOT_PATH="./deployments/certs-data"
+DATA_PATH="./data/certbot/conf"
+WEBROOT_PATH="./data/certbot/www"
 
-if [ -d "$DATA_PATH" ]; then
-  echo ">>> Сертификаты уже существуют: $DATA_PATH"
+if [ -d "$DATA_PATH/live/$DOMAIN" ]; then
+  echo ">>> Сертификаты уже существуют: $DATA_PATH/live/$DOMAIN"
   exit 0
 fi
 

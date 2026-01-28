@@ -61,7 +61,7 @@ This creates an Ubuntu 22.04 VM at `192.168.56.2`.
 ### 2. Run Test Deployment
 
 ```bash
-./deployments/test_deploy.sh
+./deployments/scripts/test_deploy.sh
 ```
 
 **What this script does:**

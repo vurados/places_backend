@@ -4,7 +4,7 @@
 - name: Setup Alertmanager config from template
   ansible.builtin.template:
     src: alertmanager.yml.j2
-    dest: /opt/places_backend/deployments/monitoring/alertmanager.yml
+    dest: /opt/places_backend/deployments/configs/monitoring/alertmanager.yml
     owner: root
     group: root
     mode: "0644"
