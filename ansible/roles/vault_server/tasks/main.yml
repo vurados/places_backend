@@ -1,0 +1,44 @@
+---
+- name: Install dependencies
+  apt:
+    name: [gpg, coreutils, curl]
+    state: present
+    update_cache: yes
+
+- name: Add HashiCorp GPG key
+  apt_key:
+    url: https://apt.releases.hashicorp.com/gpg
+    state: present
+
+- name: Add HashiCorp repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Install Vault
+  apt:
+    name: vault
+    state: present
+
+- name: Ensure Vault storage directory exists
+  file:
+    path: "{{ vault_storage_path }}"
+    state: directory
+    owner: vault
+    group: vault
+    mode: '0750'
+
+- name: Template Vault configuration
+  template:
+    src: vault.hcl.j2
+    dest: "{{ vault_config_path }}/vault.hcl"
+    owner: vault
+    group: vault
+    mode: '0640'
+  notify: restart vault
+
+- name: Ensure Vault service is started and enabled
+  systemd:
+    name: vault
+    state: started
+    enabled: yes

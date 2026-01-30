@@ -66,26 +66,67 @@
     group: root
     mode: "0644"
 
-- name: Setup .env file from template
-  ansible.builtin.template:
-    src: env.j2
-    dest: /opt/places_backend/.env
-    owner: root
-    group: root
-    mode: "0644"
+- name: Ensure vault-agent config directory exists
+  file:
+    path: /opt/places_backend/deployments/configs/vault-agent
+    state: directory
+    mode: '0755'
+
+- name: Provision role_id for Vault Agent
+  copy:
+    content: "{{ vault_role_id }}"
+    dest: /opt/places_backend/deployments/configs/vault-agent/role_id
+    mode: '0644'
+  when: vault_role_id is defined
+
+- name: Provision secret_id for Vault Agent
+  copy:
+    content: "{{ vault_secret_id }}"
+    dest: /opt/places_backend/deployments/configs/vault-agent/secret_id
+    mode: '0644'
+  when: vault_secret_id is defined
   
+- name: Ensure .env file exists
+  file:
+    path: /opt/places_backend/.env
+    state: touch
+    mode: '0644'
+
+- name: Start Vault Agent first
+  shell: |
+    VAULT_ADDR={{ vault_addr | default('http://host.docker.internal:8200') }} \
+    docker compose -f compose/docker-compose.yml up -d vault-agent
+  args:
+    chdir: /opt/places_backend
+
+- name: Wait for .env generation by Vault Agent
+  shell: |
+    for i in {1..30}; do
+      if [ -s /opt/places_backend/.env ] && grep -q "DB_PASSWORD" /opt/places_backend/.env; then
+        echo ".env generated successfully"
+        exit 0
+      fi
+      echo "Waiting for .env... (attempt $i)"
+      sleep 2
+    done
+    echo "Timeout waiting for .env generation"
+    exit 1
+  args:
+    chdir: /opt/places_backend
+  when: vault_role_id is defined
+
 - name: Run docker-compose for main application
   shell: |
-    if [ "{{ env_name }}" = "prod" ]; then
-      PROFILE_ARG="--profile prod"
-    else
-      PROFILE_ARG=""
+    if [ "{{ env_name }}" = "test" ] || [ "{{ env_name }}" = "prod" ]; then
+        IMAGE_NAME="vurados/places-backend"
     fi
-    docker compose $PROFILE_ARG --profile portainer --env-file .env -f compose/docker-compose.yml up -d --build
+    IMAGE_TAG={{ app_image_tag | default('latest') }} \
+    IMAGE_NAME=$IMAGE_NAME \
+    VAULT_ADDR={{ vault_addr | default('http://host.docker.internal:8200') }} \
+    docker compose --profile portainer --env-file .env -f compose/docker-compose.yml up -d
   args:
     chdir: /opt/places_backend
   async: 600
   poll: 10
   environment:
-    COMPOSE_HTTP_TIMEOUT: "300"
-  # no_log: true
+    COMPOSE_HTTP_TIMEOUT: "500"

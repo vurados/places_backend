@@ -4,3 +4,4 @@
   become: true
   roles:
     - setup
+    - vault_server
