@@ -20,5 +20,5 @@ auto_auth {
 
 template {
   source      = "/etc/vault-agent/dotenv.ctmpl"
-  destination = "/app/.env"
+  destination = "/etc/vault-agent/secrets.env"
 }

@@ -17,8 +17,6 @@
                    up -d
   args:
     chdir: /opt/places_backend
-  async: 600
-  poll: 10
   environment:
-    COMPOSE_HTTP_TIMEOUT: "300"
+    COMPOSE_HTTP_TIMEOUT: "1000"
   no_log: true
