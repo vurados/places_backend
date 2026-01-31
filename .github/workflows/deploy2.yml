@@ -12,6 +12,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Validate Secrets
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+        run: |
+          missing_secrets=()
+          [ -z "$VPS_SSH_KEY" ] && missing_secrets+=("VPS_SSH_KEY")
+          [ -z "$VPS_HOST" ] && missing_secrets+=("VPS_HOST")
+          [ -z "$VPS_USER" ] && missing_secrets+=("VPS_USER")
+          [ -z "$VAULT_ADDR" ] && missing_secrets+=("VAULT_ADDR")
+          [ -z "$VAULT_ROLE_ID" ] && missing_secrets+=("VAULT_ROLE_ID")
+          [ -z "$VAULT_SECRET_ID" ] && missing_secrets+=("VAULT_SECRET_ID")
+          
+          if [ ${#missing_secrets[@]} -ne 0 ]; then
+            echo "Error: The following GitHub Secrets are missing or empty:"
+            printf '%s\n' "${missing_secrets[@]}"
+            exit 1
+          fi
+          echo "All required secrets are present."
     
       - name: Install Ansible
         run: |
@@ -26,45 +50,20 @@ jobs:
  
       - name: Create Ansible inventory
         run: |
-          mkdir -p ansible
+          mkdir -p ansible/inventories
           echo "[vps]" > ansible/inventory.ini
-          echo "server ansible_host=${{ secrets.VPS_HOST }} ansible_user=${{ secrets.VPS_USER }} ansible_ssh_private_key_file=~/.ssh/id_rsa" >> ansible/inventory.ini
+          echo "backend-prod ansible_host=${{ secrets.VPS_HOST }} ansible_user=${{ secrets.VPS_USER }} ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
 
-      - name: Create encrypted Ansible Vault
-        env:
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          MINIO_ROOT_USER: ${{ secrets.MINIO_ROOT_USER }}
-          MINIO_ROOT_PASSWORD: ${{ secrets.MINIO_ROOT_PASSWORD }}
-          VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-        run: |
-          echo "creating vault file"
-          mkdir -p ansible/group_vars/all
-
-          # Create YAML with secrets in-memory
-          cat <<EOF > ansible/group_vars/all/env.yml
-          db_user: "${DB_USER}"
-          db_password: "${DB_PASSWORD}"
-          db_name: "${DB_NAME}"
-          redis_password: "${REDIS_PASSWORD}"
-          minio_root_user: "${MINIO_ROOT_USER}"
-          minio_root_password: "${MINIO_ROOT_PASSWORD}"
-          EOF
-
-          # Encrypt the file with ansible-vault
-          echo "$VAULT_PASSWORD" > vault_pass.txt
-          ansible-vault encrypt ansible/group_vars/all/env.yml --vault-password-file vault_pass.txt
-      
       - name: Run Ansible Playbook
         env:
-          VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
         run: |
-          echo "$VAULT_PASSWORD" > vault_pass.txt
-          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --vault-password-file vault_pass.txt
+          ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml \
+            -e "vault_addr=$VAULT_ADDR" \
+            -e "vault_role_id=$VAULT_ROLE_ID" \
+            -e "vault_secret_id=$VAULT_SECRET_ID" \
+            -e "env_name=production" \
+            -e "ansible_python_interpreter=/usr/bin/python3"
       
-      - name: cleanup
-        run: |
-          rm -rf ansible/group_vars
-          rm -rf vault_pass.txt

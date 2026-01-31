@@ -70,7 +70,9 @@
   file:
     path: /opt/places_backend/deployments/configs/vault-agent
     state: directory
-    mode: '0777'
+    mode: '0750'
+    owner: '100'
+    group: 'vagrant'
 
 - name: Provision role_id for Vault Agent
   copy:

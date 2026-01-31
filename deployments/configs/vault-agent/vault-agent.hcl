@@ -21,4 +21,5 @@ auto_auth {
 template {
   source      = "/etc/vault-agent/dotenv.ctmpl"
   destination = "/etc/vault-agent/secrets.env"
+  perms = "0640"
 }
