@@ -23,3 +23,9 @@ template {
   destination = "/etc/vault-agent/secrets.env"
   perms = "0640"
 }
+
+template {
+  source      = "/etc/vault-agent/alertmanager.ctmpl"
+  destination = "/etc/monitoring/alertmanager.yml"
+  perms = "0644"
+}

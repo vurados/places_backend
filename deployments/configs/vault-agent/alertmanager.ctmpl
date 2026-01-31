@@ -1,0 +1,31 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'telegram'
+
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: '{{ with secret "secret/monitoring" }}{{ .Data.data.telegram_bot_token }}{{ end }}'
+        chat_id: {{ with secret "secret/monitoring" }}{{ .Data.data.telegram_chat_id }}{{ end }}
+        parse_mode: 'HTML'
+        message: |
+          {{ range .Alerts }}
+          <b>Alert:</b> {{ .Labels.alertname }}
+          <b>Severity:</b> {{ .Labels.severity }}
+          <b>Summary:</b> {{ .Annotations.summary }}
+          <b>Description:</b> {{ .Annotations.description }}
+          <b>Status:</b> {{ .Status }}
+          {{ end }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']

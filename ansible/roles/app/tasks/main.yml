@@ -88,12 +88,11 @@
     mode: '0644'
   when: vault_secret_id is defined
   
-  #TODO: supposed to be deleted
-- name: Ensure .env file exists
+
+- name: Remove legacy .env file
   file:
     path: /opt/places_backend/.env
-    state: touch
-    mode: '0644'
+    state: absent
 
 - name: Start Vault Agent first
   shell: |
@@ -127,7 +126,7 @@
     IMAGE_TAG={{ app_image_tag | default('latest') }} \
     IMAGE_NAME=$IMAGE_NAME \
     VAULT_ADDR={{ vault_addr | default('http://host.docker.internal:8200') }} \
-    docker compose --profile portainer --env-file .env -f compose/docker-compose.yml up -d
+    docker compose --profile portainer --env-file deployments/configs/vault-agent/secrets.env -f compose/docker-compose.yml up -d
   args:
     chdir: /opt/places_backend
   environment:

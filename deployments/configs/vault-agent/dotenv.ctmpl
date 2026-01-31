@@ -8,6 +8,9 @@ MINIO_BUCKET=places-social
 MINIO_SECURE=false
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+DB_NAME=geo_social
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
 
 # Vault-Managed Secrets
 {{ with secret "secret/data/places-backend" }}
