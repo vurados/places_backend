@@ -23,13 +23,34 @@ The project includes a comprehensive monitoring stack:
 docker compose -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml --profile monitoring --profile portainer up -d
 ```
 
-### Access Monitoring Tools
+### Access Monitoring Tools (Production/Review)
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Grafana | <http://localhost:3000> | admin/admin |
-| Prometheus | <http://localhost:9090> | - |
-| Alertmanager | <http://localhost:9093> | - |
+For security, monitoring tools are **not exposed** to the public internet. Access them via a secure SSH tunnel.
+
+#### 1. Configure Local DNS
+
+Add to your local `/etc/hosts` (macOS/Linux) or `C:\Windows\System32\drivers\etc\hosts`:
+
+```
+127.0.0.1 grafana.internal portainer.internal prometheus.internal alertmanager.internal
+```
+
+#### 2. Open Tunnel
+
+Run the helper script and enter your VPS credentials:
+
+```bash
+./deployments/scripts/connect_internal.sh
+```
+
+#### 3. Access URLs
+
+| Service | Secure URL |
+|---------|------------|
+| Grafana | <http://grafana.internal:8080> |
+| Prometheus | <http://prometheus.internal:8080> |
+| Alertmanager | <http://alertmanager.internal:8080> |
+| Portainer | <http://portainer.internal:8080> |
 
 ---
 

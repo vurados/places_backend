@@ -40,9 +40,12 @@ graph TD
 
 The project uses a **Zero Trust** approach to secret management using **HashiCorp Vault** for deployments, while keeping local development simple.
 
-### Development vs. Production
+### Dual-Layer Configuration
 
-1. **Local Development**:
+> [!TIP]
+> **Need to initialize Vault?** See the step-by-step **[Vault Initialization & Setup Guide](docs/VAULT_SETUP.md)** for GUI/CLI instructions.
+
+1. **Static Config** (`.env`): Contains non-sensitive data like hostnames, ports, and feature flags. Safe to check into version control (as `.env.example`).
     - Uses `.env` file (copied from `.env.example`).
     - Simple key-value pairs for local services (DB, Redis, MinIO).
 
@@ -71,7 +74,7 @@ The following secrets must be populated in Vault (`secret/data/places-backend`) 
 | `telegram_bot_token` | Token for Telegram Alert Bot |
 | `telegram_chat_id` | Chat ID for alerts |
 
-## Quick Start
+## Quick Start for
 
 ### 1. Set Up Services For Backend Development
 
@@ -116,6 +119,7 @@ This project uses **GitHub Actions** for:
 | **[Backend Development](docs/DEVELOPMENT_BACKEND.md)** | Rapid development workflow with Docker (hot-reload). |
 | **[Infrastructure & DevOps](docs/DEVELOPMENT_DEVOPS.md)** | Testing full stack with Vagrant and Ansible. |
 | **[Deployment Guide](docs/DEPLOYMENT.md)** | Production setup, SSL, and CI/CD pipelines. |
+| **[Vault Setup](docs/VAULT_SETUP.md)** | Step-by-step initialization, unsealing, and secrets. |
 | **[Monitoring](docs/MONITORING.md)** | Prometheus, Grafana dashboards, and alerting. |
 
 ---

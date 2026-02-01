@@ -7,7 +7,7 @@
       stat:
         path: /etc/ansible_bootstrapped
       register: bootstrap_stat
-
+    
     - name: Assert server is bootstrapped
       assert:
         that: bootstrap_stat.stat.exists
