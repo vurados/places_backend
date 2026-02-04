@@ -5,13 +5,13 @@ Complete API reference for the Urban Places Social App backend.
 ## Base URL
 
 - **Development**: `http://localhost:8000/api/v1`
-- **Production**: `https://vurados.ru/api/v1`
+- **Production**: `https://{your_domain}/api/v1`
 
 ## Authentication
 
 All authenticated endpoints require a JWT token in the `Authorization` header:
 
-```
+```bash
 Authorization: Bearer <your-jwt-token>
 ```
 
