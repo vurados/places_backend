@@ -16,14 +16,3 @@
     name: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-buildx-plugin', 'docker-compose-plugin']
     state: latest
     update_cache: yes
-
-- name: Install rsync (required for synchronize)
-  apt:
-    name: rsync
-    state: present
-
-- name: Create bootstrap marker file
-  copy:
-    content: "Bootstrapped by Ansible at {{ ansible_date_time.iso8601 }}"
-    dest: /etc/ansible_bootstrapped
-    mode: '0644'

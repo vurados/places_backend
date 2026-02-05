@@ -126,4 +126,4 @@ This project uses **GitHub Actions** for:
 
 ## License
 
-[Your License Here]
+MIT License

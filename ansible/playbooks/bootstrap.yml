@@ -1,7 +1,19 @@
 ---
-- name: Bootstrap Urban Places Backend Server
+- name: All Servers Baseline
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Application Servers (Docker + Vault)
   hosts: vps
   become: true
   roles:
     - setup
     - vault_server
+
+- name: Jenkins Servers
+  hosts: jenkins
+  become: true
+  roles:
+    - jenkins
