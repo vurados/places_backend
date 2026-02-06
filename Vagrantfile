@@ -15,8 +15,8 @@ Vagrant.configure("2") do |config|
     backend.vm.hostname = "backend"
   end
 
-  config.vm.define "backend-test" do |test|
-    test.vm.network "private_network", ip: "192.168.56.3"
-    test.vm.hostname = "backend-vault-test"
+  config.vm.define "jenkins_server" do |jenkins_server|
+    jenkins_server.vm.network "private_network", ip: "192.168.56.3"
+    jenkins_server.vm.hostname = "jenkins-server"
   end
 end
