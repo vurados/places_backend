@@ -1,38 +1,27 @@
 ---
-# Jenkins installation tasks
+# Jenkins installation tasks (Docker-based)
 
-- name: Install OpenJDK 17
-  apt:
-    name: openjdk-17-jre
-    state: present
-    update_cache: yes
-
-- name: Ensure /usr/share/keyrings exists
+- name: Create Jenkins directory
   file:
-    path: /usr/share/keyrings
+    path: /opt/jenkins
     state: directory
     mode: '0755'
 
-- name: Add Jenkins GPG key
-  get_url:
-    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-    dest: /usr/share/keyrings/jenkins-keyring.asc
+- name: Create Jenkins data directory
+  file:
+    path: /opt/jenkins/jenkins_home
+    state: directory
+    mode: '0755'
+    owner: 1000
+    group: 1000
+
+- name: Template Jenkins docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/jenkins/docker-compose.yml
     mode: '0644'
 
-- name: Add Jenkins Repository
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
-    state: present
-    filename: jenkins
-
-- name: Install Jenkins
-  apt:
-    name: jenkins
-    state: present
-    update_cache: yes
-
-- name: Ensure Jenkins is started and enabled
-  service:
-    name: jenkins
-    state: started
-    enabled: yes
+- name: Start Jenkins via Docker Compose
+  shell: docker compose up -d
+  args:
+    chdir: /opt/jenkins
