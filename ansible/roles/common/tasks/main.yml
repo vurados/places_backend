@@ -98,3 +98,24 @@
     line: 'PermitRootLogin no'
     state: present
   notify: Restart ssh
+
+- name: Set persistent MTU 1300 on eth0
+  shell: |
+    ip link set dev eth0 mtu 1300
+    sed -i '/mtu 1500/d' /etc/network/interfaces || true
+  changed_when: false
+
+- name: Configure Docker daemon
+  copy:
+    content: |
+      {
+        "mtu": 1300,
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  notify: Restart docker

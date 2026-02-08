@@ -2,4 +2,5 @@
   hosts: jenkins
   become: true
   roles:
+    - setup
     - jenkins

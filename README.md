@@ -122,6 +122,25 @@ This project uses **GitHub Actions** for:
 | **[Vault Setup](docs/VAULT_SETUP.md)** | Step-by-step initialization, unsealing, and secrets. |
 | **[Monitoring](docs/MONITORING.md)** | Prometheus, Grafana dashboards, and alerting. |
 
+## CI/CD Infrastructure
+
+The project includes a complete, automated CI/CD stack deployed via Ansible.
+
+### Jenkins (Docker-in-Docker)
+
+- **Deployment**: Highly isolated Dockerized Jenkins LTS.
+- **Sidecar**: Uses a `docker:dind` sidecar to allow building Docker images inside pipelines without direct host access.
+- **Resilience**:
+  - **Health Checks**: Automated service monitoring and auto-restart capability.
+  - **Resource Capping**: (1GB RAM / 0.5 CPU) prevents noisy neighbor issues.
+  - **Log Rotation**: Global log capping (30MB max) prevents disk exhaustion.
+- **Networking**: Optimized MTU (1300) to ensure stable TLS connections for plugin and image pulls.
+
+### Ansible Provisioning
+
+- **Roles**: Structured roles for `common` hardening, `setup` (Docker), and `jenkins`.
+- **Hardening**: UFW white-listing, non-root Docker usage, and Fail2Ban protection.
+
 ---
 
 ## License

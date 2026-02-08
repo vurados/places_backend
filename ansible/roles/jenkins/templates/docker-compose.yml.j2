@@ -1,16 +1,61 @@
+networks:
+  jenkins:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1300
+
+volumes:
+  jenkins-docker-certs:
+  jenkins-data:
+
 services:
+  jenkins-docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    restart: unless-stopped
+    networks:
+      jenkins:
+        aliases:
+          - docker
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    ports:
+      - "2376:2376"
+    command: --storage-driver overlay2
+
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
     restart: unless-stopped
+    networks:
+      - jenkins
     ports:
       - "8080:8080"
       - "50000:50000"
-    volumes:
-      - ./jenkins_home:/var/jenkins_home
     environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
     user: "1000:1000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1024M
