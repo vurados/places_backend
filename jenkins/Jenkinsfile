@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHONPATH = "${WORKSPACE}/app"
+        POSTGRES_USER = 'test_user'
+        POSTGRES_PASSWORD = 'test_password'
+        POSTGRES_DB = 'test_db'
+        DB_HOST = 'postgres'
+        DB_PORT = '5432'
+        REDIS_HOST = 'redis'
+        REDIS_PORT = '6379'
+        SECRET_KEY = 'test_secret_key'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.IMAGE_NAME = "vurados/places-backend"
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            agent {
+                docker { image 'python:3.12' }
+            }
+            steps {
+                sh 'pip install bandit'
+                sh 'bandit -r app/ -x app/tests/'
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                script {
+                    docker.image('postgres:15').withRun("-e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB}") { c ->
+                        docker.image('redis:7').withRun("") { r ->
+                            docker.image('python:3.12').inside("--link ${c.id}:postgres --link ${r.id}:redis") {
+                                sh 'pip install -r app/requirements.txt'
+                                sh 'pip install pytest pytest-asyncio httpx pytest-cov freezegun asynctest bcrypt'
+                                sh 'pytest -v --cov=app --cov-report=term app/tests'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f docker/Dockerfile ."
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            agent {
+                docker { image 'python:3.12' }
+            }
+            steps {
+                sh 'apt-get update && apt-get install -y ansible'
+                withCredentials([
+                    string(credentialsId: 'VPS_SSH_KEY', variable: 'VPS_SSH_KEY'),
+                    string(credentialsId: 'VPS_HOST', variable: 'VPS_HOST'),
+                    string(credentialsId: 'VPS_USER', variable: 'VPS_USER'),
+                    string(credentialsId: 'VAULT_ROLE_ID', variable: 'VAULT_ROLE_ID'),
+                    string(credentialsId: 'VAULT_SECRET_ID', variable: 'VAULT_SECRET_ID'),
+                    string(credentialsId: 'VAULT_ADDR', variable: 'VAULT_ADDR')
+                ]) {
+                    sh """
+                    mkdir -p ~/.ssh
+                    echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
+                    chmod 600 ~/.ssh/id_rsa
+                    
+                    mkdir -p deployments/ansible
+                    echo "[vps]" > deployments/ansible/inventory.ini
+                    echo "server ansible_host=$VPS_HOST ansible_user=$VPS_USER ansible_ssh_private_key_file=~/.ssh/id_rsa" >> deployments/ansible/inventory.ini
+                    
+                    ansible-playbook -i deployments/ansible/inventory.ini ansible/playbooks/deploy.yml \\
+                        -e "app_image_tag=${IMAGE_TAG}" \\
+                        -e "vault_role_id=${VAULT_ROLE_ID}" \\
+                        -e "vault_secret_id=${VAULT_SECRET_ID}" \\
+                        -e "vault_addr=${VAULT_ADDR}" \\
+                        -e "env_name=prod"
+                    
+                    rm -rf ~/.ssh/id_rsa
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

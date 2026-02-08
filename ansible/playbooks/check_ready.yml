@@ -1,0 +1,14 @@
+---
+- name: Verify server readiness for deployment
+  hosts: vps
+  gather_facts: no
+  tasks:
+    - name: Check if server is bootstrapped
+      stat:
+        path: /etc/ansible_bootstrapped
+      register: bootstrap_stat
+    
+    - name: Assert server is bootstrapped
+      assert:
+        that: bootstrap_stat.stat.exists
+        fail_msg: "SERVER ERROR: /etc/ansible_bootstrapped not found. Run bootstrap.yml first!"

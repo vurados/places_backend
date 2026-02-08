@@ -17,7 +17,14 @@
       - ufw
       - fail2ban
       - software-properties-common
+      - rsync
     state: present
+
+- name: Create bootstrap marker file
+  copy:
+    content: "Bootstrapped by Ansible at {{ ansible_date_time.iso8601 }}"
+    dest: /etc/ansible_bootstrapped
+    mode: '0644'
 
 - name: Set system timezone
   community.general.timezone:
@@ -41,6 +48,19 @@
         rule: allow
         port: '443'
         proto: tcp
+
+    - name: Allow Jenkins Web UI
+      community.general.ufw:
+        rule: allow
+        port: '8080'
+        proto: tcp
+
+    - name: Set UFW default forward policy to ACCEPT
+      lineinfile:
+        path: /etc/default/ufw
+        regexp: '^DEFAULT_FORWARD_POLICY='
+        line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+      notify: Reload ufw
 
     - name: Enable UFW
       community.general.ufw:
@@ -78,3 +98,24 @@
     line: 'PermitRootLogin no'
     state: present
   notify: Restart ssh
+
+- name: Set persistent MTU 1300 on eth0
+  shell: |
+    ip link set dev eth0 mtu 1300
+    sed -i '/mtu 1500/d' /etc/network/interfaces || true
+  changed_when: false
+
+- name: Configure Docker daemon
+  copy:
+    content: |
+      {
+        "mtu": 1300,
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  notify: Restart docker

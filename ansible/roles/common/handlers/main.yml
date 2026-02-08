@@ -8,3 +8,12 @@
   service:
     name: ssh
     state: restarted
+
+- name: Reload ufw
+  community.general.ufw:
+    state: reloaded
+
+- name: Restart docker
+  service:
+    name: docker
+    state: restarted

@@ -1,32 +1,20 @@
 ---
 # Monitoring role: Deploy monitoring stack only
 
-- name: Setup Alertmanager config from template
-  ansible.builtin.template:
-    src: alertmanager.yml.j2
-    dest: /opt/places_backend/deployments/configs/monitoring/alertmanager.yml
-    owner: root
-    group: root
-    mode: "0644"
+- name: Ensure monitoring config directory exists and is writable by Vault Agent
+  file:
+    path: /opt/places_backend/deployments/configs/monitoring
+    state: directory
+    mode: "0777"
 
 - name: Start monitoring stack
   shell: |
     docker compose -f /opt/places_backend/compose/docker-compose.yml \
                    -f /opt/places_backend/compose/docker-compose.monitoring.yml \
+                   --env-file /opt/places_backend/.env \
                    up -d
   args:
     chdir: /opt/places_backend
-  async: 600
-  poll: 10
   environment:
-    DB_USER: "{{ db_user }}"
-    DB_PASSWORD: "{{ db_password }}"
-    DB_NAME: "{{ db_name }}"
-    REDIS_PASSWORD: "{{ redis_password }}"
-    MINIO_ROOT_USER: "{{ minio_root_user }}"
-    MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
-    SECRET_KEY: "{{ secret_key | default('test_secret_key_change_in_production') }}"
-    TELEGRAM_BOT_TOKEN: "{{ telegram_bot_token | default('') }}"
-    TELEGRAM_CHAT_ID: "{{ telegram_chat_id | default('') }}"
-    COMPOSE_HTTP_TIMEOUT: "300"
+    COMPOSE_HTTP_TIMEOUT: "1000"
   no_log: true

@@ -1,4 +1,6 @@
 ---
+- import_playbook: check_ready.yml
+
 - name: Deploy Urban Places Backend App
   hosts: vps
   become: true

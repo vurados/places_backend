@@ -1,0 +1,25 @@
+---
+# Jenkins installation tasks (Docker-based)
+
+- name: Create Jenkins directory
+  file:
+    path: /opt/jenkins
+    state: directory
+    mode: '0755'
+
+- name: Template Jenkins docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/jenkins/docker-compose.yml
+    mode: '0644'
+
+- name: Stop and clean Jenkins via Docker Compose
+  shell: docker compose down
+  args:
+    chdir: /opt/jenkins
+  changed_when: true
+
+- name: Start Jenkins via Docker Compose
+  shell: docker compose up -d
+  args:
+    chdir: /opt/jenkins

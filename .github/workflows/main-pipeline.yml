@@ -1,0 +1,175 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+            - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        ports:
+            - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        working-directory: ./app
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Run tests
+        working-directory: ./app
+        # env:
+        #   DB_HOST: localhost
+        #   DB_PORT: ${{ job.services.postgres.ports[5432] }}
+        #   DB_USER: test_user
+        #   DB_PASSWORD: test_password
+        #   DB_NAME: test_db
+        #   REDIS_HOST: localhost
+        #   REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+        #   SECRET_KEY: test_secret_key
+        run: |
+          pytest -v --tb=short
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install security tools
+        working-directory: ./app
+        run: |
+          pip install safety bandit
+
+      # - name: Check for vulnerabilities
+      #   working-directory: ./app
+      #   run: |
+      #     safety scan
+
+      - name: Run bandit security scan
+        working-directory: ./app
+        run: |
+          bandit -r ./ -x ./tests/
+
+  build-and-push:
+    needs: [test, security-scan]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/places-backend
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [build-and-push]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Create Ansible inventory
+        run: |
+          mkdir -p ansible
+          echo "[vps]" > ansible/inventory.ini
+          echo "backend-prod ansible_host=${{ secrets.VPS_HOST }} ansible_user=${{ secrets.VPS_USER }} ansible_ssh_private_key_file=~/.ssh/id_ed25519 ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
+
+      - name: Run Ansible Playbook
+        env:
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml \
+            -e "vault_addr=$VAULT_ADDR" \
+            -e "vault_role_id=$VAULT_ROLE_ID" \
+            -e "vault_secret_id=$VAULT_SECRET_ID" \
+            -e "env_name=production" \
+            -e "ansible_python_interpreter=/usr/bin/python3"

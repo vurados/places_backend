@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose*
+Dockerfile*
+.dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.venv/
+env/
+venv/
+ENV/
+
+# OS/IDEs
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+docs/
+ansible/
+Vagrantfile
+.vagrant/
+LICENSE
+README.md
+CHANGELOG.md
+
+# Secrets and Env
+*.env
+.env.*
+! .env.example
+secrets/

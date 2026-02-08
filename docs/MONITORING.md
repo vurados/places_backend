@@ -23,15 +23,15 @@ The project includes a comprehensive monitoring stack:
 docker compose -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml --profile monitoring --profile portainer up -d
 ```
 
-### Access Monitoring Tools (Production)
+### Access Monitoring Tools (Production/Review)
 
 For security, monitoring tools are **not exposed** to the public internet. Access them via a secure SSH tunnel.
 
 #### 1. Configure Local DNS
 
-Add to your local `/etc/hosts` file:
+Add to your local `/etc/hosts` (macOS/Linux) or `C:\Windows\System32\drivers\etc\hosts`:
 
-```hosts
+```
 127.0.0.1 grafana.internal portainer.internal prometheus.internal alertmanager.internal
 ```
 
