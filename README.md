@@ -2,6 +2,15 @@
 
 A FastAPI-based backend for a social application focused on urban places, routes, and location-based features.
 
+## Alternative Implementations
+
+This project includes alternative architectural approaches in dedicated branches:
+
+| Branch | Topic | Implementation Details |
+| :--- | :--- | :--- |
+| **[`feat-hcorpvault`](../../tree/feat-hcorpvault)** | **Secret Management** | Uses **HashiCorp Vault** for centralized secret storage, AppRole authentication, and dynamic configuration via Vault Agent templates. |
+| **[`feat-k8s`](../../tree/feat-k8s)** | **Orchestration** | Migration to **Kubernetes** with HPA (Horizontal Pod Autoscaling), PDB (PodDisruptionBudgets), and K8s Jobs for automated migrations. |
+
 ## Architecture
 
 ```mermaid
