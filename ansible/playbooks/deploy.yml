@@ -6,5 +6,3 @@
   become: true
   roles:
     - app
-    - role: monitoring
-      when: enable_monitoring | default(false) | bool

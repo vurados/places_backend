@@ -48,6 +48,12 @@
     domain_name: "{{ domain }}"
   when: env_name != 'prod'
 
+- name: Ensure NGINX config directory exists
+  file:
+    path: /opt/places_backend/deployments/configs/nginx
+    state: directory
+    mode: '0755'
+
 - name: Setup NGINX config from template
   ansible.builtin.template:
     src: nginx.conf.j2
@@ -70,15 +76,23 @@
   file:
     path: /opt/places_backend/deployments/configs/vault-agent
     state: directory
-    mode: '0750'
+    mode: '0755'
     owner: '100'
-    group: 'vagrant'
+    group: '1000'
+
+- name: Ensure monitoring config directory exists
+  file:
+    path: /opt/places_backend/deployments/configs/monitoring
+    state: directory
+    mode: '0777'   # Allow Vault Agent to write alertmanager.yml
 
 - name: Provision role_id for Vault Agent
   copy:
     content: "{{ vault_role_id }}"
     dest: /opt/places_backend/deployments/configs/vault-agent/role_id
     mode: '0644'
+    owner: '100'
+    group: '1000'
   when: vault_role_id is defined
 
 - name: Provision secret_id for Vault Agent
@@ -86,6 +100,8 @@
     content: "{{ vault_secret_id }}"
     dest: /opt/places_backend/deployments/configs/vault-agent/secret_id
     mode: '0644'
+    owner: '100'
+    group: '1000'
   when: vault_secret_id is defined
 
 - name: Start Vault Agent first
@@ -120,7 +136,9 @@
     IMAGE_TAG={{ app_image_tag | default('latest') }} \
     IMAGE_NAME=$IMAGE_NAME \
     VAULT_ADDR={{ vault_addr | default('http://host.docker.internal:8200') }} \
-    docker compose --profile portainer --env-file deployments/configs/vault-agent/secrets.env -f compose/docker-compose.yml up -d
+    docker compose \
+        --env-file deployments/configs/vault-agent/secrets.env \
+        -f compose/docker-compose.yml -f compose/docker-compose.monitoring.yml up -d
   args:
     chdir: /opt/places_backend
   environment:

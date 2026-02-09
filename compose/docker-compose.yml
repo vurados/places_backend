@@ -115,7 +115,6 @@ services:
 
   portainer:
     image: portainer/portainer-ce:latest
-    profiles: [ "portainer" ]
     ports:
       - "127.0.0.1:9443:9443"
       - "127.0.0.1:9002:9000"
