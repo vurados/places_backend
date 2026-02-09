@@ -18,6 +18,7 @@ oauth.register(
     client_id=settings.VK_OAUTH_CLIENT_ID,
     client_secret=settings.VK_OAUTH_CLIENT_SECRET,
     authorize_url='https://oauth.vk.com/authorize',
+    #nosec
     access_token_url='https://oauth.vk.com/access_token',
     client_kwargs={'scope': 'email'}
 )

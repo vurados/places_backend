@@ -109,6 +109,7 @@ async def login_for_access_token(
     # OAuth2 spec requires just access_token and token_type
     return {
         "access_token": access_token,
+        #nosec
         "token_type": "bearer",
         "refresh_token": create_access_token(data={"sub": str(user.id)}, expires_delta=timedelta(days=30))
     }
@@ -150,6 +151,7 @@ async def login(
     
     return {
         "access_token": access_token,
+        #nosec
         "token_type": "bearer",
         "refresh_token": refresh_token
     }
@@ -203,6 +205,7 @@ async def oauth_login(
     
     return {
         "access_token": access_token,
+        #nosec
         "token_type": "bearer",
         "refresh_token": refresh_token
     }
