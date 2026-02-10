@@ -1,3 +1,4 @@
+---
 # These variables should be encrypted with Ansible Vault
 db_user: "prod_user"
 db_password: "prod_password"

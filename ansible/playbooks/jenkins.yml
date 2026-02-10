@@ -1,3 +1,4 @@
+---
 - name: Install and configure Jenkins
   hosts: jenkins
   become: true

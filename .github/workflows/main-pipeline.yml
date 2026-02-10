@@ -1,3 +1,4 @@
+---
 name: CI/CD Pipeline
 
 on:
@@ -6,7 +7,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -24,7 +24,7 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: test_db
         ports:
-            - 5432:5432
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -36,7 +36,7 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         ports:
-            - 6379:6379
+          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s

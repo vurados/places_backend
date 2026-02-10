@@ -5,7 +5,7 @@
   ansible.posix.synchronize:
     src: "{{ playbook_dir }}/../../"
     dest: /opt/places_backend
-    delete: yes
+    delete: true
     rsync_opts:
       - "--exclude=.git"
       - "--exclude=.venv"
@@ -21,8 +21,8 @@
   file:
     path: "/opt/places_backend/data/certbot/conf/live/{{ domain_name }}"
     state: directory
-    mode: '0755'
-    recurse: yes
+    mode: "0755"
+    recurse: true
   vars:
     domain_name: "{{ domain }}"
   when: env_name != 'prod'
@@ -43,7 +43,7 @@
   copy:
     src: "/opt/places_backend/data/certbot/conf/live/{{ domain_name }}/fullchain.pem"
     dest: "/opt/places_backend/data/certbot/conf/live/{{ domain_name }}/chain.pem"
-    remote_src: yes
+    remote_src: true
   vars:
     domain_name: "{{ domain }}"
   when: env_name != 'prod'
@@ -52,7 +52,7 @@
   file:
     path: /opt/places_backend/deployments/configs/nginx
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Setup NGINX config from template
   ansible.builtin.template:
@@ -62,8 +62,8 @@
     group: root
     mode: "0644"
   vars:
-    domain_name: "{{ domain }}"  # from vault
-  
+    domain_name: "{{ domain }}" # from vault
+
 - name: Setup Internal NGINX config from template
   ansible.builtin.template:
     src: internal_nginx.conf.j2
@@ -76,32 +76,32 @@
   file:
     path: /opt/places_backend/deployments/configs/vault-agent
     state: directory
-    mode: '0755'
-    owner: '100'
-    group: '1000'
+    mode: "0755"
+    owner: "100"
+    group: "1000"
 
 - name: Ensure monitoring config directory exists
   file:
     path: /opt/places_backend/deployments/configs/monitoring
     state: directory
-    mode: '0777'   # Allow Vault Agent to write alertmanager.yml
+    mode: "0777" # Allow Vault Agent to write alertmanager.yml
 
 - name: Provision role_id for Vault Agent
   copy:
     content: "{{ vault_role_id }}"
     dest: /opt/places_backend/deployments/configs/vault-agent/role_id
-    mode: '0644'
-    owner: '100'
-    group: '1000'
+    mode: "0644"
+    owner: "100"
+    group: "1000"
   when: vault_role_id is defined
 
 - name: Provision secret_id for Vault Agent
   copy:
     content: "{{ vault_secret_id }}"
     dest: /opt/places_backend/deployments/configs/vault-agent/secret_id
-    mode: '0644'
-    owner: '100'
-    group: '1000'
+    mode: "0644"
+    owner: "100"
+    group: "1000"
   when: vault_secret_id is defined
 
 - name: Start Vault Agent first

@@ -2,13 +2,13 @@
 # Monitoring role: Deploy monitoring stack only
 
 - name: Ensure monitoring config directory exists and is writable by Vault Agent
-  file:
+  ansible.builtin.file:
     path: /opt/places_backend/deployments/configs/monitoring
     state: directory
     mode: "0777"
 
 - name: Start monitoring stack
-  shell: |
+  ansible.builtin.shell: |
     docker compose -f /opt/places_backend/compose/docker-compose.yml \
                    -f /opt/places_backend/compose/docker-compose.monitoring.yml \
                    --env-file /opt/places_backend/.env \

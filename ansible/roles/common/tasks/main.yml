@@ -3,7 +3,7 @@
 
 - name: Update apt cache and upgrade system packages
   apt:
-    update_cache: yes
+    update_cache: true
     upgrade: dist
     cache_valid_time: 3600
 
@@ -24,7 +24,7 @@
   copy:
     content: "Bootstrapped by Ansible at {{ ansible_date_time.iso8601 }}"
     dest: /etc/ansible_bootstrapped
-    mode: '0644'
+    mode: "0644"
 
 - name: Set system timezone
   community.general.timezone:
@@ -40,25 +40,25 @@
     - name: Allow HTTP
       community.general.ufw:
         rule: allow
-        port: '80'
+        port: "80"
         proto: tcp
 
     - name: Allow HTTPS
       community.general.ufw:
         rule: allow
-        port: '443'
+        port: "443"
         proto: tcp
 
     - name: Allow Jenkins Web UI
       community.general.ufw:
         rule: allow
-        port: '8080'
+        port: "8080"
         proto: tcp
 
     - name: Allow HashiCorp Vault
       community.general.ufw:
         rule: allow
-        port: '8200'
+        port: "8200"
         proto: tcp
 
     - name: Allow traffic from Docker bridge to host
@@ -66,10 +66,22 @@
         rule: allow
         from_ip: 172.17.0.0/16
 
+    - name: Allow Kafka
+      community.general.ufw:
+        rule: allow
+        port: '9092'
+        proto: tcp
+
+    - name: Allow Kafka UI
+      community.general.ufw:
+        rule: allow
+        port: '8085'
+        proto: tcp
+
     - name: Set UFW default forward policy to ACCEPT
       lineinfile:
         path: /etc/default/ufw
-        regexp: '^DEFAULT_FORWARD_POLICY='
+        regexp: "^DEFAULT_FORWARD_POLICY="
         line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
       notify: Reload ufw
 
@@ -84,7 +96,7 @@
       service:
         name: fail2ban
         state: started
-        enabled: yes
+        enabled: true
 
     - name: Create basic jail.local for SSH
       copy:
@@ -99,14 +111,14 @@
         dest: /etc/fail2ban/jail.local
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
       notify: Restart fail2ban
 
 - name: Disable Root Login via SSH (Hardening)
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin no'
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin no"
     state: present
   notify: Restart ssh
 
@@ -128,5 +140,5 @@
         }
       }
     dest: /etc/docker/daemon.json
-    mode: '0644'
+    mode: "0644"
   notify: Restart docker
