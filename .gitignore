@@ -5,6 +5,7 @@ __pycache__
 *.pyc
 .pytest_cache
 .vagrant
+.ansible
 .vscode
 .idea
 vault_pass.txt
