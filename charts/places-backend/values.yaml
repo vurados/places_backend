@@ -44,10 +44,6 @@ pdb:
 # Dependencies
 postgresql:
   enabled: true
-  image:
-    registry: public.ecr.aws
-    repository: bitnami/postgresql
-    tag: 18.0.0
   auth:
     database: geo_social
     username: app_user
@@ -59,10 +55,6 @@ postgresql:
 
 redis:
   enabled: true
-  image:
-    registry: public.ecr.aws
-    repository: bitnami/redis
-    tag: 8.4.0
   auth:
     password: redis_password_here
   master:
@@ -72,10 +64,6 @@ redis:
 
 minio:
   enabled: true
-  image:
-    registry: public.ecr.aws
-    repository: bitnami/minio
-    tag: 2025.10.15
   rootUser: minioadmin
   rootPassword: minioadmin_password
   persistence:
