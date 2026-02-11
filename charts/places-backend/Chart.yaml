@@ -7,13 +7,13 @@ appVersion: "1.0.0"
 dependencies:
   - name: postgresql
     version: 18.2.6
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgresql.enabled
   - name: redis
     version: 24.1.8
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: redis.enabled
   - name: minio
     version: 17.0.21
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: minio.enabled
