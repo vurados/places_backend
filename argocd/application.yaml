@@ -14,27 +14,6 @@ spec:
     helm:
       valueFiles:
         - values.yaml
-      parameters:
-        - name: global.security.allowInsecureImages
-          value: "true"
-        - name: postgresql.image.registry
-          value: public.ecr.aws
-        - name: postgresql.image.repository
-          value: bitnami/postgresql
-        - name: postgresql.image.tag
-          value: 15.1.0-debian-11-r0
-        - name: redis.image.registry
-          value: public.ecr.aws
-        - name: redis.image.repository
-          value: bitnami/redis
-        - name: redis.image.tag
-          value: 7.0.12-debian-11-r0
-        - name: minio.image.registry
-          value: public.ecr.aws
-        - name: minio.image.repository
-          value: bitnami/minio
-        - name: minio.image.tag
-          value: 2023.6.14-debian-11-r0
   destination:
     server: https://kubernetes.default.svc
     namespace: places-backend
