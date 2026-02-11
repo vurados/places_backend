@@ -1,8 +1,11 @@
 # Default values for places-backend.
+global:
+  security:
+    allowInsecureImages: true
 
 image:
   repository: places_backend-app
-  pullPolicy: Never # Changed to Never for local dev/kind
+  pullPolicy: Always # Changed to Never for local dev/kind
   tag: "latest"
 
 replicaCount: 2
