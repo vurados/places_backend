@@ -44,6 +44,10 @@ pdb:
 # Dependencies
 postgresql:
   enabled: true
+  image:
+    registry: public.ecr.aws
+    repository: bitnami/postgresql
+    tag: 15.1.0-debian-11-r0
   auth:
     database: geo_social
     username: app_user
@@ -55,6 +59,10 @@ postgresql:
 
 redis:
   enabled: true
+  image:
+    registry: public.ecr.aws
+    repository: bitnami/redis
+    tag: 7.0.12-debian-11-r0
   auth:
     password: redis_password_here
   master:
