@@ -55,10 +55,22 @@ This will create an Application named `places-backend` in ArgoCD, pointing to th
 
 **Note**: Once merged to main, update `targetRevision` in `argocd/application.yaml` to `HEAD` or `main`.
 
-## 4. Sync Policy
+## 4. Sync Policy & Waves
 
 The application is configured with:
 
 - **Automated Sync**: Changes to the git repo are automatically applied.
 - **Prune**: Resources removed from git are removed from the cluster.
 - **Self-Heal**: Deviation from the desired state in the cluster is corrected automatically.
+
+### Sync Waves
+
+To ensure a stable startup, we use **ArgoCD Sync Waves**:
+
+- **Wave 0**: Core dependencies (PostgreSQL, Redis, MinIO) and their ConfigMaps/Secrets.
+- **Wave 1**: Database Migrations Job (runs migrations once DB is ready).
+- **Wave 2**: Main Application Deployment (starts once migrations are complete).
+
+### Dependency Waiting (Init Containers)
+
+Both the Migration Job and the Application use `initContainers` to wait for TCP connectivity to PostgreSQL, Redis, and MinIO before starting. This prevents "Database not ready" and "AccessKeyId" errors during initial reconciliation.

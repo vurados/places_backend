@@ -102,14 +102,6 @@ We will extract hardcoded values from the manifests into `values.yaml` to allow 
     helm install places-backend charts/places-backend -n places-backend --create-namespace
     ```
 
-## 6. CI/CD Integration
+## 6. GitOps Integration
 
-Update `Jenkinsfile` or GitHub Actions to use Helm:
-
-```groovy
-stage('Deploy with Helm') {
-    steps {
-        sh 'helm upgrade --install places-backend ./charts/places-backend --set image.tag=${IMAGE_TAG}'
-    }
-}
-```
+This chart is fully integrated with **ArgoCD**. Refer to **[ArgoCD Guide](ARGOCD.md)** for automated deployment instructions.

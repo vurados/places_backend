@@ -83,7 +83,36 @@ kubectl exec -it deployment/places-backend -n places-backend -- pytest
 This project is configured for cloud-native deployment:
 
 - **CI**: GitHub Actions for automated testing and container image building.
-- **CD**: Kubernetes-native deployment (ArgoCD or Helm ready).
+- **CI**: GitHub Actions for automated testing and container image building.
+- **CD**: GitOps-driven deployment via **ArgoCD** and **Helm**.
+
+---
+
+## ⎈ GitOps Workflow
+
+This project uses **ArgoCD** for automated, declarative deployments.
+
+### 1. Installation
+
+To set up ArgoCD in your cluster:
+
+```bash
+./deployments/scripts/install_argocd.sh
+```
+
+### 2. Apply Application
+
+Apply the GitOps manifest to start managing the project:
+
+```bash
+kubectl apply -f argocd/application.yaml
+```
+
+### 3. Sync & Automation
+
+- **Sync Waves**: Core dependencies (DB, Redis, MinIO) start first, followed by migrations, and finally the application.
+- **Self-Healing**: Deviations in the cluster are automatically corrected to match the Git state.
+- **Automatic Pruning**: Deleted resources in Git are automatically removed from the cluster.
 
 ---
 
@@ -92,6 +121,8 @@ This project is configured for cloud-native deployment:
 | Guide | Description |
 | --- | --- |
 | **[K8s Minikube Setup](docs/K8S_MINIKUBE_SETUP.md)** | **Start here** for local development on Kubernetes. |
+| **[Helm Guide](docs/HELM.md)** | Configuration and management via Helm charts. |
+| **[ArgoCD GitOps](docs/ARGOCD.md)** | Automated deployment and cluster management. |
 | **[API Reference](docs/API.md)** | Endpoints, request/response schemas, and auth. |
 | **[Backend Development](docs/DEVELOPMENT_BACKEND.md)** | Development workflow and coding standards. |
 | **[App Monitoring](docs/MONITORING.md)** | HPA, Metrics, and K8s observability. |
