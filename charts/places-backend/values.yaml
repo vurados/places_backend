@@ -4,7 +4,7 @@ global:
     allowInsecureImages: true
 
 image:
-  repository: places_backend-app
+  repository: docker.io/vuardos/places-backend
   pullPolicy: Always # Changed to Never for local dev/kind
   tag: "latest"
 
