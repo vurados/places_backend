@@ -91,8 +91,9 @@ minio:
     registry: public.ecr.aws
     repository: bitnami/minio
     tag: latest
-  rootUser: minioadmin
-  rootPassword: minioadmin_password
+  auth:
+    rootUser: minioadmin
+    rootPassword: minioadmin_password
   persistence:
     enabled: true
     size: 2Gi
