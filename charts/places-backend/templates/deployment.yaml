@@ -4,6 +4,8 @@ metadata:
   name: {{ include "places-backend.fullname" . }}
   labels:
     {{- include "places-backend.labels" . | nindent 4 }}
+  annotations:
+    "argocd.argoproj.io/sync-wave": "2"
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -27,6 +29,16 @@ spec:
             matchLabels:
               {{- include "places-backend.selectorLabels" . | nindent 14 }}
       terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: wait-for-db
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -vz {{ .Release.Name }}-postgresql 5432; do echo waiting for postgresql; sleep 2; done']
+        - name: wait-for-redis
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -vz {{ .Release.Name }}-redis-master 6379; do echo waiting for redis; sleep 2; done']
+        - name: wait-for-minio
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -vz {{ .Release.Name }}-minio 9000; do echo waiting for minio; sleep 2; done']
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
