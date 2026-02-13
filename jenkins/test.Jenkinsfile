@@ -11,7 +11,7 @@ pipeline {
                 sh 'pwd'
                 sh 'ls -l'
                 script {
-                    sh "docker build -t vurados/places-backend:jenkimage -f docker/Dockerfile ./app"
+                    sh "docker build -t vurados/places-backend:jenkimage -f docker/Dockerfile ."
                 }
             }
         }
