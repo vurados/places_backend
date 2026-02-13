@@ -5,7 +5,7 @@ from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from urllib.parse import quote_plus
 
-# load_dotenv is handled by Pydantic SettingsConfigDict
+load_dotenv()
 
 class Settings(BaseSettings):
     # Project
@@ -70,8 +70,8 @@ class Settings(BaseSettings):
     
     model_config = SettingsConfigDict(
         case_sensitive=True,
-        env_file=".env" if os.path.exists(".env") else None,
-        extra="ignore"
+        env_file=".env",
+        extra="ignore"  # Игнорируем дополнительные поля
     )
 
 settings = Settings()
