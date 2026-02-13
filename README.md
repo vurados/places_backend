@@ -129,6 +129,7 @@ This project uses **GitHub Actions** for:
 | **[Infrastructure & DevOps](docs/DEVELOPMENT_DEVOPS.md)** | Testing full stack with Vagrant and Ansible. |
 | **[Deployment Guide](docs/DEPLOYMENT.md)** | Production setup, SSL, and CI/CD pipelines. |
 | **[Vault Setup](docs/VAULT_SETUP.md)** | Step-by-step initialization, unsealing, and secrets. |
+| **[Jenkins CI/CD](docs/JENKINS.md)** | Jenkins controller, custom agent, and DinD stack. |
 | **[Monitoring](docs/MONITORING.md)** | Prometheus, Grafana dashboards, and alerting. |
 
 ## CI/CD Infrastructure

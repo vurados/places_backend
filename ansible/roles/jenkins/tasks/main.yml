@@ -13,6 +13,12 @@
     dest: /opt/jenkins/docker-compose.yml
     mode: '0644'
 
+- name: Sync agent Dockerfile
+  copy:
+    src: agent.Dockerfile
+    dest: /opt/jenkins/agent.Dockerfile
+    mode: '0644'
+
 - name: Stop and clean Jenkins via Docker Compose
   shell: docker compose down
   args:
@@ -20,6 +26,6 @@
   changed_when: true
 
 - name: Start Jenkins via Docker Compose
-  shell: docker compose up -d
+  shell: "JENKINS_AGENT_SECRET={{ jenkins_agent_secret | default('') }} docker compose up -d"
   args:
     chdir: /opt/jenkins
