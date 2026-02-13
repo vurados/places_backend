@@ -3,4 +3,3 @@ env_name: "test"
 enable_monitoring: true
 ansible_user: vagrant
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o IdentitiesOnly=yes'
-jenkins_agent_secret: "b400852dc4e47ea3222cc81b9efb8e2c835701652bad1a2b4973ee498a3f77e2"

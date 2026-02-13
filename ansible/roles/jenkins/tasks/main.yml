@@ -26,6 +26,6 @@
   changed_when: true
 
 - name: Start Jenkins via Docker Compose
-  shell: "JENKINS_AGENT_SECRET={{ jenkins_agent_secret | default('') }} docker compose up -d"
+  shell: "JENKINS_AGENT_SECRET={{ jenkins_agent_secret | default('') }} docker compose up -d --build"
   args:
     chdir: /opt/jenkins
