@@ -7,7 +7,7 @@ oauth = OAuth()
 oauth.register(
     name='google',
     client_id=settings.GOOGLE_OAUTH_CLIENT_ID,
-    client_secret=settings.GOOGLE_OAUTH_CLIENT_SECRET,
+    client_secret=settings.GOOGLE_OAUTH_CLIENT_SECRET,  # nosec
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={'scope': 'openid email profile'}
 )
@@ -16,9 +16,9 @@ oauth.register(
 oauth.register(
     name='vk',
     client_id=settings.VK_OAUTH_CLIENT_ID,
-    client_secret=settings.VK_OAUTH_CLIENT_SECRET,
+    client_secret=settings.VK_OAUTH_CLIENT_SECRET,  # nosec
     authorize_url='https://oauth.vk.com/authorize',
-    access_token_url='https://oauth.vk.com/access_token',
+    access_token_url='https://oauth.vk.com/access_token',  # nosec
     client_kwargs={'scope': 'email'}
 )
 

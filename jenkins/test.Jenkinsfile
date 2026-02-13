@@ -10,9 +10,9 @@ pipeline {
             steps {
                 sh 'pwd'
                 sh 'ls -l'
-                script {
-                    sh "docker build -t vurados/places-backend:jenkimage -f docker/Dockerfile ."
-                }
+                sh 'docker build -t vurados/places-backend:jenkimage -f docker/Dockerfile .'
+                sh 'docker tag vurados/places-backend:jenkimage vurados/places-backend:jenkimage'
+                sh 'docker push vurados/places-backend:jenkimage'
             }
         }
     }
