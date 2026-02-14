@@ -62,3 +62,24 @@ It includes:
 - `jenkins/inbound-agent` base.
 - `docker.io` client for interacting with the DinD sidecar.
 - WebSocket support for stable connections.
+
+## Docker Registry Authentication
+
+To push images to a registry (like Docker Hub), you must add your credentials to Jenkins:
+
+1. **Add Credentials**:
+    - Go to **Manage Jenkins** > **Credentials** > **System** > **Global credentials**.
+    - Click **Add Credentials**.
+    - Kind: **Username with password**.
+    - ID: `docker-hub-credentials` (This must match the `credentialsId` in your Jenkinsfile).
+    - Username: Your Docker Hub username.
+    - Password: Your Docker Hub Personal Access Token (PAT).
+2. **Pipeline Usage**:
+    Use the `withCredentials` block to authenticate before pushing:
+
+    ```groovy
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+        sh 'docker push your-repo/image:tag'
+    }
+    ```
